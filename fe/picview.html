@@ -1,0 +1,21 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title></title>
+</head>
+<script src="js/jquery-2.1.1.min.js">
+</script>
+<script>
+var picData;
+function initAreaData(){ 
+var datasrc="http://23333.github.io/fe/news.json"; 
+$.getJSON(datasrc, function(data){ 
+picData=data;
+}); 
+}
+initAreaData();
+</script>
+<body>
+</body>
+</html>
