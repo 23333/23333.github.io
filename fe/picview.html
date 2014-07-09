@@ -7,11 +7,43 @@
 <script src="js/jquery-2.1.1.min.js">
 </script>
 <script>
-var picData;
+var p;
 var datasrc="/fe/news.json"; 
-$.getJSON(datasrc, function(data){ 
-picData=data;
+q=$.getJSON(datasrc, function(data){ 
+p=data;
+printJSON(p);
+showImg(p);
 }); 
+//p:获取来的json对象
+//q:get信息
+function printJSON(p)//打印JSON信息
+{
+	var viewJSON=
+		'<div id="view" style="margin-left:10px;padding-left:10px;border-left:2px solid #3F3;font-family: \'Arial\';background:#f2f2f2;color:#666;">'+
+		'<h3><b>JSONdata:</b></h3>';
+	for (var i in p)
+	{
+	console.log(i);
+		viewJSON+='　　'+i+':　';
+		if (typeof p[i]=='object')
+		for (var j in p[i])
+		{
+			viewJSON+='<br>　　　　'+(+j+1)+':　';
+			for (var k in p[i][j])
+			{
+				viewJSON+='<br>　　　　　　　'+k;
+				viewJSON+=k=='url'||k=='details'?(':　<a href="'+p[i][j][k]+'">'+p[i][j][k]+'</a>'):(':　'+p[i][j][k]);
+			}
+		}
+		else viewJSON+=p[i];
+		viewJSON+='<br>';
+	}
+	viewJSON+='</div>';
+	$('body').prepend(viewJSON);
+}
+function showImg(p)//轮播图片
+{
+}
 </script>
 <body>
 </body>
