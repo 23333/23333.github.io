@@ -12,10 +12,11 @@ var datasrc="/fe/news.json";
 q=$.getJSON(datasrc, function(data){ 
 p=data;
 printJSON(p);
+addImg(p);
 showImg(p);
 }); 
 //p:获取来的json对象
-//q:get信息
+//q:get到的信息
 function printJSON(p)//打印JSON信息
 {
 	var viewJSON=
@@ -23,7 +24,6 @@ function printJSON(p)//打印JSON信息
 		'<h3><b>JSONdata:</b></h3>';
 	for (var i in p)
 	{
-	console.log(i);
 		viewJSON+='　　'+i+':　';
 		if (typeof p[i]=='object')
 		for (var j in p[i])
@@ -43,7 +43,32 @@ function printJSON(p)//打印JSON信息
 }
 function showImg(p)//轮播图片
 {
+	
 }
+function addImg(p)
+{
+	var imgArea='<div id="imgArea" style="box-shadow: 5px 5px 14px #888888;border-radius: 12px;border:1px solid #F3F3F3;overflow:hidden;width:400px;height:280px;margin-left:10px;margin-top:20px;position:fixed">';
+	for (var i=0;i<p.num;i++)
+	{
+	imgArea+='<div style="'+
+	'-webkit-transform: translateY('+
+	0+//400*(+i)+
+	'px);"'+
+	'"><img id="pic'+i+'" src="'+
+	p.images[i].url+
+	'" ></div>';
+	}
+	imgArea+='</div>';
+	$('body').prepend(imgArea);
+}
+function moveleft()
+{
+}
+function moveright()
+{
+}
+
+
 </script>
 <body>
 </body>
