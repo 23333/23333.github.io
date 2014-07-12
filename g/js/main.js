@@ -15,7 +15,7 @@ $('html').css({cursor:'none'});
 var mx=-20,my=-20;//鼠标位置
 var items={};
 var bg=cv.createLinearGradient(0,0,0,height);bg.addColorStop(0,'#cbebdb');bg.addColorStop(1,'#55a5c5');//背景渐变色
-var pl={x:width/2,y:height/2,vx:0,vy:0,ax:0,ay:0,arc:0};
+var pl={x:-20,y:-20,vx:0,vy:0,ax:0,ay:0,arc:0};
 var plSize=16;//飞机大小
 var cursorSize=6;//指针大小
 var u1=5,u2=90;//控制飞机运动的两个阻尼参数
