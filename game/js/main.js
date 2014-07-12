@@ -3,6 +3,8 @@ $('body')[0].innerHTML='';
 if (timer) window.clearInterval(timer);
 
 /*******************添加canvas**********************/
+var width=document.documentElement.clientWidth;
+var height=document.documentElement.clientHeight;
 $('body').prepend('<canvas id="canv" style="position:absolute;left:0px;top:0px;" width='+width+'px height='+height+'px>请换个浏览器。。</canvas>');
 var cv=$('#canv')[0].getContext('2d');
 
@@ -12,10 +14,8 @@ $('html').css({cursor:'none'});
 /*******************全局变量&常量声明***************/
 var mx=-20,my=-20;//鼠标位置
 var items={};
-var width=document.documentElement.clientWidth;
-var height=document.documentElement.clientHeight;
 var bg=cv.createLinearGradient(0,0,0,height);bg.addColorStop(0,'#cbebdb');bg.addColorStop(1,'#55a5c5');//背景渐变色
-var pl={x:0,y:0,vx:0,vy:0,ax:0,ay:0,arc:0};
+var pl={x:-20,y:-20,vx:0,vy:0,ax:0,ay:0,arc:0};
 var plSize=16;//飞机大小
 var cursorSize=6;//指针大小
 var u1=5,u2=90;//控制飞机运动的两个阻尼参数
