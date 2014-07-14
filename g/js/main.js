@@ -437,22 +437,22 @@
 		ballMove();
 		drawBalls();
 		if (random()<ballDensity) addBall(rad(ran(175,185)));
-		if (level>0)
+		bigBallMove();
+		drawBigBalls();
+		butterflyMove();
+		drawButterflys();
+		starMove();
+		drawStars();
+		if (level==1||level==4||level==5||level>6)
 		{
-			bigBallMove();
-			drawBigBalls();
 			if (random()<bigBallDensity) addBigBall(rad(ran(175,185)));
 		}
-		if (level>1)
-		{
-			butterflyMove();
-			drawButterflys();
+		if (level==2||level==4||level>=6)
+		{	
 			if (clock%100==0) addButterfly();
 		}
-		if (level>2)
+		if (level==3||level==5||level>=6)
 		{
-			starMove();
-			drawStars();
 			if (clock%7==0) addStar();	
 		}
 		cv.fillText('Score: '+clock,10,10);
