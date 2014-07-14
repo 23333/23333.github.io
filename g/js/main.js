@@ -73,7 +73,7 @@
 	var ballSpeed=4.2;
 	var bigBallSpeed=3.8;
 	var starSpeed=9;
-	var ballDensity=0.4;//每一帧新产生一个ball的概率
+	var ballDensity=0.8;//每一帧新产生一个ball的概率
 	var bigBallDensity=0.08;//每一帧新产生一个泡泡的概率
 	var butterflyDensity=6;//每次每边产生蝴蝶个数
 	var ballStyle='#eef';
@@ -438,13 +438,20 @@
 		if (!died) drawPlane();
 		ballMove();
 		drawBalls();
-		if (random()<ballDensity) addBall(rad(ran(175,185)));
 		bigBallMove();
 		drawBigBalls();
 		butterflyMove();
 		drawButterflys();
 		starMove();
 		drawStars();
+		if (level<1)
+		{
+			if (random()<ballDensity) addBall(rad(ran(175,185)));
+		}
+		else
+		{
+			if (random()<ballDensity/3) addBall(rad(ran(175,185)));
+		}
 		if (level==1||level==4||level==5||level>6)
 		{
 			if (random()<bigBallDensity) addBigBall(rad(ran(175,185)));
@@ -455,9 +462,9 @@
 		}
 		if (level==3||level==5||level>=6)
 		{
-			if (clock%7==0) addStar();	
+			if (clock%8==0) addStar();	
 		}
-		cv.fillText('Score: '+clock,10,10);
+		cv.fillText('Time: '+clock,10,10);
 		//cv.fillText('x:'+round(pl.x)+' y:'+round(pl.y)+' vx:'+round(pl.vx)+' vy:'+round(pl.vy)+' ax:'+round(pl.ax)+' ay:'+round(pl.ay)+' arc:'+round(pl.arc*180/PI),100,100);
 		clock++;
 		bgColorTimer++;
