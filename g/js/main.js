@@ -81,6 +81,8 @@
 	var died=false;
 	var level=0;
 	var judge={ball:cube(plSize/4+ballSize),bigBall:cube(plSize/4+bigBallSize),butterfly:cube(plSize/4+butterflySize),star:cube(plSize/4+starSize)};
+	var startBgColor=ranInt(0,359);
+	var bgColorTimer=0;
 	
 /*******************各个绘图函数********************/
 	function hsvToRgb(h,s,v)//hsv转rgb
@@ -104,10 +106,10 @@
 
 	function drawBG()//画背景
 	{
-		if (clock%10==0)//变色
+		if (bgColorTimer%10==0)//变色
 		{
-			var b=hsvToRgb((clock/10)%360,0.14,0.92);
-			var c=hsvToRgb((clock/10)%360,0.57,0.77);
+			var b=hsvToRgb((startBgColor+bgColorTimer/10)%360,0.14,0.92);
+			var c=hsvToRgb((startBgColor+bgColorTimer/10)%360,0.57,0.77);
 			bg=cv.createLinearGradient(0,0,0,height);
 			bg.addColorStop(0,'rgb('+b.r+','+b.g+','+b.b+')');
 			bg.addColorStop(1,'rgb('+c.r+','+c.g+','+c.b+')');
@@ -458,6 +460,7 @@
 		cv.fillText('Score: '+clock,10,10);
 		//cv.fillText('x:'+round(pl.x)+' y:'+round(pl.y)+' vx:'+round(pl.vx)+' vy:'+round(pl.vy)+' ax:'+round(pl.ax)+' ay:'+round(pl.ay)+' arc:'+round(pl.arc*180/PI),100,100);
 		clock++;
+		bgColorTimer++;
 		if (clock%1200==1199) level++;
 	}, 1000/fps);//fps
 
