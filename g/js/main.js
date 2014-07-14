@@ -492,7 +492,7 @@
 		'padding-top:20px;'+
 		'color:#eef;'+
 		'">'+
-		'GAME OVER<div style="font-size:24px;padding-top:20px;">YOUR SCORE IS '+clock+'0.</div>'+
+		'GAME OVER<div style="font-size:24px;padding-top:20px;">YOUR SCORE IS '+floor(Math.pow(clock,1.1))+'0.</div>'+
 		'<div id="retry" style="margin-top:30px;background:#227;">TRY AGAIN</div></div>');
 	}
 	
