@@ -585,7 +585,7 @@
 		info=s;
 	}
 	
-	function func_addScore()
+	function func_addScore(s)
 	{
 		score+=s*1000;//对玩家显示加了s万分
 	}
