@@ -45,9 +45,9 @@
 	}
 
 /*******************全局变量&常量声明***************/
-	var mx=-20,my=height/2;//鼠标位置
+	var mx=width/7,my=height/2;//鼠标位置
 	var bg;//=cv.createLinearGradient(0,0,0,height);//bg.addColorStop(0,'#cbebdb');bg.addColorStop(1,'#55a5c5');//背景渐变色
-	var pl={x:-20,y:height/2,vx:0,vy:0,ax:0,ay:0,arc:0};//飞机的初始运动参数
+	var pl={x:width/9,y:height/2,vx:0,vy:0,ax:0,ay:0,arc:0};//飞机的初始运动参数
 	var plSize=20;//飞机大小
 	var cursorSize=6;//指针大小
 	var ballSize=4;
@@ -55,6 +55,7 @@
 	var bSize=10;//蝴蝶判定点大小
 	var butterflySize=bSize-2;
 	var starSize=10;
+	var score=0;
 	var u1=6,u2=80;//控制飞机运动的两个阻尼参数, u1:越大表示加速度受速度的负影响越大 u2:越大表示速度越慢
 	var fps=60;//帧率
 	//var planeShape=[{r:plSize,t:0},{r:plSize,t:rad(165)},{r:plSize/2,t:rad(180)},{r:plSize,t:rad(195)}];//飞机的极坐标数组
@@ -63,26 +64,39 @@
 	var butterflyLine=[/*{r:2.4,t:rad(130)},{r:2.5,t:rad(140)},{r:2.5,t:rad(220)},{r:2.4,t:rad(230)},*/{r:3,t:rad(15)},{r:3,t:rad(345)}];//蝴蝶身上的线的极坐标
 	var butterflyShape=[{r:1,t:0},{r:2.7,t:rad(35)},{r:3.5,t:rad(45)},{r:3.2,t:rad(55)},{r:2.33,t:rad(95)},{r:1,t:rad(90)},{r:2,t:rad(120)},{r:2.1,t:rad(150)},{r:1,t:rad(180)},
 						{r:2.1,t:rad(210)},{r:2,t:rad(240)},{r:1,t:rad(270)},{r:2.33,t:rad(265)},{r:3.2,t:rad(305)},{r:3.5,t:rad(315)},{r:2.7,t:rad(325)}];
+	var diamondShape = [{r:d1,t:PI+rad(90+t1+t2/2)},{r:d2,t:PI+rad(90+t2/2)},{r:d2,t:PI+rad(90-t2/2)},{r:d1,t:PI+rad(90-t1-t2/2)},{r:0,t:PI}];
 	var Star_6 = [{r:starSize,t:rad(90)},{r:starSize/2*1.5,t:rad(60)},{r:starSize,t:rad(30)},{r:starSize/2*1.5,t:rad(0)},{r:starSize,t:rad(-30)},{r:starSize/2*1.5,t:rad(-60)},{r:starSize,t:rad(-90)},
 				{r:starSize/2*1.5,t:rad(-120)},{r:starSize,t:rad(-150)},{r:starSize/2*1.5,t:rad(-180)},{r:starSize,t:rad(-210)},{r:starSize/2*1.5,t:rad(-240)}];
 	for (var i in butterflyShape) butterflyShape[i].r*=bSize;
-	var balls=[];
+	var balls=[];         //以下四个存储画面中的炮弹
 	var bigBalls=[];
 	var butterflys=[];
 	var stars=[];
+	var diamonds=[];
 	var ballSpeed=4.2;
 	var bigBallSpeed=3.8;
+	var butterflySpeed=0.35;
 	var starSpeed=9;
 	var ballDensity=0.8;//每一帧新产生一个ball的概率
 	var bigBallDensity=0.08;//每一帧新产生一个泡泡的概率
 	var butterflyDensity=6;//每次每边产生蝴蝶个数
+	var diamondDensity=0.0015;//宝石掉落几率
 	var ballStyle='#eef';
 	var clock=0;
 	var died=false;
 	var level=0;
-	var judge={ball:cube(plSize/4+ballSize),bigBall:cube(plSize/4+bigBallSize),butterfly:cube(plSize/4+butterflySize),star:cube(plSize/4+starSize)};
+	var judge={
+		ball:cube(plSize/4+ballSize),
+		bigBall:cube(plSize/4+bigBallSize),
+		butterfly:cube(plSize/4+butterflySize),
+		star:cube(plSize/4+starSize),
+		diamond:cube(plSize/4+15)
+	};
 	var startBgColor=ranInt(0,359);
 	var bgColorTimer=0;
+	var life=3;
+	var wudi=false;
+	var info='';//调试信息
 	
 /*******************各个绘图函数********************/
 	function hsvToRgb(h,s,v)//hsv转rgb
@@ -108,8 +122,8 @@
 	{
 		if (bgColorTimer%10==0)//变色
 		{
-			var b=hsvToRgb((startBgColor+bgColorTimer/10)%360,0.14,0.92);
-			var c=hsvToRgb((startBgColor+bgColorTimer/10)%360,0.57,0.77);
+			var b=hsvToRgb((startBgColor+bgColorTimer/10)%360,0.14,0.92);//上方低饱和度颜色
+			var c=hsvToRgb((startBgColor+bgColorTimer/10)%360,0.57,0.77);//下方高饱和度颜色
 			bg=cv.createLinearGradient(0,0,0,height);
 			bg.addColorStop(0,'rgb('+b.r+','+b.g+','+b.b+')');
 			bg.addColorStop(1,'rgb('+c.r+','+c.g+','+c.b+')');
@@ -120,7 +134,7 @@
 		cv.restore();
 	}
 
-	function drawItem(p,x,y,d)//画任意极坐标表示的多边形，p为极坐标的数组, x&y是该图形的基准位置，d为旋转角度。需在外部指定绘图样式
+	function drawItem(p,x,y,d)//创建(而不是画)任意极坐标表示的多边形，p为极坐标的数组, x&y是该图形的基准位置，d为旋转角度。需在外部指定绘图样式
 	{
 		cv.beginPath();
 		var len=p.length;
@@ -152,10 +166,12 @@
 		cv.stroke(); 
 		cv.restore();
 	}
+	
 	function drawPlane()//画操纵的飞机
 	{
 		cv.save();
 		cv.fillStyle='#e44';
+		if (wudi&&((clock/3)&1)) cv.fillStyle='#ee9';
 		drawItem(planeShape,pl.x,pl.y,pl.arc);
 		cv.fill();
 		var tail=8*cos(rad(clock*7));
@@ -214,11 +230,11 @@
 		bigBallStyle.addColorStop(0.84,"rgba(238,238,255,0.1)");
 		bigBallStyle.addColorStop(1,"rgba(238,238,255,1)");
 		cv.fillStyle=bigBallStyle;
-		cv.arc(x,y,r,0,PI*2,true);
+		cv.arc(x,y,r,0,PI*2,true);//泡泡主体
 		cv.closePath();
 		cv.fill();
 		cv.restore();
-		drawBigBallLightCircle(x-0.614*r,y-0.2*r,0.17*r);
+		drawBigBallLightCircle(x-0.614*r,y-0.2*r,0.17*r);//泡泡上的光斑
 		drawBigBallLightCircle(x-0.57*r,y-0.323*r,0.17*r);
 		drawBigBallLightCircle(x-0.462*r,y-0.43*r,0.17*r);
 		drawBigBallLightCircle(x-0.2*r,y-0.615*r,0.17*r);
@@ -234,11 +250,11 @@
 		}
 	}
 
-	function drawOneButterfly(x,y,deg,color)
+	function drawOneButterfly(x,y,deg,color)//画个蝴蝶
 	{
 		cv.save();
 		
-		cv.strokeStyle=color;
+		cv.strokeStyle='white';
 		cv.lineWidth=1;
 		cv.beginPath();
 		for (var i in butterflyLine) 
@@ -291,6 +307,48 @@
 		}
 	}
 	
+	function drawOneDiamond(dia_x,dia_y)//画钻石
+	{
+		var d1 = 25,d2 = d1/25*30,d3 = d1/25*27;
+		var t1 = 20,t2 = 40;
+		cv.save();
+		cv.fillStyle='white';
+		//var diamondStyle=cv.createRadialGradient(dia_x-5,dia_y-19,0,dia_x-5,dia_y-19,10);
+		//diamondStyle.addColorStop(0,"rgba(255,255,255,0.9)");
+		//diamondStyle.addColorStop(1,"rgba(244,244,255,0.9)");
+		//cv.fillStyle=diamondStyle;
+		cv.strokeStyle='rgba(72,233,236,1)';
+		cv.lineWidth=1;
+		drawItem(diamondShape,dia_x,dia_y,0);
+		cv.stroke();
+		cv.fill();
+		var diamond_xy = [{},{},{},{},{}];
+		cv.beginPath();
+		cv.strokeStyle='rgba(72,233,236,1)';
+		cv.lineWidth=1;
+		for(i = 0; i<diamondShape.length;i++)
+			diamond_xy[i] = xy(diamondShape[i]);
+		cv.moveTo(dia_x+diamond_xy[0].x,dia_y+diamond_xy[0].y);
+		cv.lineTo(dia_x+diamond_xy[3].x,dia_y+diamond_xy[3].y);
+		cv.moveTo(dia_x+diamond_xy[2].x,dia_y+diamond_xy[2].y);
+		cv.lineTo(dia_x+diamond_xy[4].x,dia_y+diamond_xy[4].y);
+		cv.lineTo(dia_x+diamond_xy[1].x,dia_y+diamond_xy[1].y);
+		cv.moveTo(dia_x,dia_y+diamond_xy[1].y);
+		cv.lineTo(dia_x-d2*cos(t2/2)/2,dia_y+diamond_xy[0].y);
+		cv.moveTo(dia_x,dia_y+diamond_xy[1].y);
+		cv.lineTo(dia_x+d2*cos(t2/2)/2,dia_y+diamond_xy[0].y);
+		cv.stroke();
+		cv.restore();
+	}
+	
+	function drawDiamonds()
+	{
+		for (var i in diamonds)
+		{
+			drawOneDiamond(diamonds[i].x,diamonds[i].y);
+		}
+	}
+	
 /*********************创建子弹******************************/
 	function addBall(degree)//一个随机产生的走直线的子弹，参数为角度，默认为向左(PI)
 	{
@@ -301,7 +359,7 @@
 		balls.push(b);
 	}
 
-	function addBigBall(degree)
+	function addBigBall(degree)//大泡泡，特性与小球相同
 	{
 		var d=(degree==undefined?PI:degree);
 		var r=sqrt(dis2(width/2,height/2,0,0));
@@ -310,7 +368,7 @@
 		bigBalls.push(b);
 	}
 
-	function addButterfly()
+	function addButterfly()//蝴蝶，路径为圆弧
 	{
 		var z=width/5;
 		var u=ran(0,z);//随机偏移量
@@ -323,7 +381,7 @@
 			t[(c+ranInt(1,2))%3]=ranInt(100,244);
 			var clr='rgba('+t[0]+','+t[1]+','+t[2]+',0.4)';
 			//var clr='rgba('+ranInt(255,255)+','+ranInt(222,255)+','+ranInt(222,255)+',0.4)';
-			butterflys.push({x:u+r+i*z,y:r,cx:u+r+i*z,cy:0,r:r,color:clr,rspeed:rad(.35-i*0.04),deg:rad(180-i*10),pos:rad(90-i*10)});
+			butterflys.push({x:u+r+i*z,y:r,cx:u+r+i*z,cy:0,r:r,color:clr,rspeed:rad(butterflySpeed-i*0.02),deg:rad(180-i*10),pos:rad(90-i*10)});
 		}
 		u=ran(0,z);
 		for (var i=0;i<5;i++)
@@ -334,15 +392,22 @@
 			t[(c+ranInt(1,2))%3]=ranInt(100,244);
 			//var clr='rgba('+ranInt(255,255)+','+ranInt(222,255)+','+ranInt(222,255)+',0.4)';
 			var clr='rgba('+t[0]+','+t[1]+','+t[2]+',0.4)';
-			butterflys.push({x:u+r+i*z,y:height-r,cx:u+r+i*z,cy:height,r:r,color:clr,rspeed:-rad(.55-i*0.05),deg:rad(180+i*10),pos:rad(270+i*10)});
+			butterflys.push({x:u+r+i*z,y:height-r,cx:u+r+i*z,cy:height,r:r,color:clr,rspeed:-rad(butterflySpeed-i*0.02),deg:rad(180+i*10),pos:rad(270+i*10)});
 		}
 	}
 	
-	function addStar()
+	function addStar()//星星，路径为直线，方向为追踪
 	{
 		var x=width+50;
 		var y=height/2+height*cos(rad(clock)*5)*0.45;
 		stars.push({x:x,y:y,deg:ran(0,1),aim:atan2(pl.y-y,pl.x-x)+(clock%3-1)*rad(3),rspeed:ran(rad(-10),rad(10))});
+	}
+	
+	function addDiamond()
+	{
+		var a=width/10,b=9*a;
+		var x=b-(cube(ran(a,b))-a*a)/(b*b-a*a)*(b-a);//使其分布在右侧较为密集
+		diamonds.push({x:x,y:-50,speed:ran(1.5,2),func:ranInt(0,4)});
 	}
 
 /*********************位置变化计算&碰撞判定********************/
@@ -352,7 +417,7 @@
 		{
 			balls[i].pos.x+=balls[i].speed*cos(balls[i].degree);
 			balls[i].pos.y+=balls[i].speed*sin(balls[i].degree);
-			if (dis2(balls[i].pos.x,balls[i].pos.y,pl.x,pl.y)<judge.ball) die();
+			if (dis2(balls[i].pos.x,balls[i].pos.y,pl.x,pl.y)<judge.ball) kill();
 			if (balls[i].pos.x<-50) balls.splice(i,1);//如果超出屏幕就删
 		}
 	}
@@ -363,12 +428,12 @@
 		{
 			bigBalls[i].pos.x+=bigBalls[i].speed*cos(bigBalls[i].degree);
 			bigBalls[i].pos.y+=bigBalls[i].speed*sin(bigBalls[i].degree);
-			if (dis2(bigBalls[i].pos.x,bigBalls[i].pos.y,pl.x,pl.y)<judge.bigBall) die();
+			if (dis2(bigBalls[i].pos.x,bigBalls[i].pos.y,pl.x,pl.y)<judge.bigBall) kill();
 			if (bigBalls[i].pos.x<-50) bigBalls.splice(i,1);//如果超出屏幕就删
 		}
 	}
 
-	function butterflyMove()
+	function butterflyMove()//改变的是相对于圆心的角度
 	{
 		for (var i=butterflys.length-1;i>=0;i--)
 		{
@@ -376,7 +441,7 @@
 			butterflys[i].deg=(butterflys[i].rspeed>0)?(butterflys[i].pos+rad(90)):(butterflys[i].pos-rad(90));
 			butterflys[i].x=butterflys[i].cx+butterflys[i].r*cos(butterflys[i].pos);
 			butterflys[i].y=butterflys[i].cy+butterflys[i].r*sin(butterflys[i].pos);
-			if (dis2(butterflys[i].x,butterflys[i].y,pl.x,pl.y)<judge.butterfly) die();
+			if (dis2(butterflys[i].x,butterflys[i].y,pl.x,pl.y)<judge.butterfly) kill();
 			if (butterflys[i].rspeed>0&&butterflys[i].y<-50||butterflys[i].rspeed<0&&butterflys[i].y>height+50) butterflys.splice(i,1);
 		}
 	}
@@ -388,8 +453,22 @@
 			stars[i].deg+=stars[i].rspeed;
 			stars[i].x+=starSpeed*cos(stars[i].aim);
 			stars[i].y+=starSpeed*sin(stars[i].aim);
-			if (dis2(stars[i].x,stars[i].y,pl.x,pl.y)<judge.star) die();
+			if (dis2(stars[i].x,stars[i].y,pl.x,pl.y)<judge.star) kill();
 			if (stars[i].x<-50) stars.splice(i,1);
+		}
+	}
+	
+	function diamondMove()
+	{
+		for (var i=diamonds.length-1;i>=0;i--)
+		{
+			diamonds[i].y+=diamonds[i].speed;
+			if (dis2(diamonds[i].x,diamonds[i].y-15,pl.x,pl.y)<judge.diamond) 
+			{
+				eatDiamond(diamonds[i].func);
+				diamonds.splice(i,1);
+			}
+			else if (diamonds[i].y>height+50) diamonds.splice(i,1);
 		}
 	}
 	
@@ -434,6 +513,7 @@
 	var timer=setInterval(function() {
 		drawBG();
 		drawCursor();
+		//drawDiamond(100,100);
 		planeMove();
 		if (!died) drawPlane();
 		ballMove();
@@ -444,6 +524,9 @@
 		drawButterflys();
 		starMove();
 		drawStars();
+		diamondMove();
+		drawDiamonds();
+		if (random()<diamondDensity) addDiamond();
 		if (level<1)
 		{
 			if (random()<ballDensity) addBall(rad(ran(175,185)));
@@ -464,7 +547,7 @@
 		{
 			if (clock%8==0) addStar();	
 		}
-		cv.fillText('Time: '+clock,10,10);
+		cv.fillText(info,10,10);
 		//cv.fillText('x:'+round(pl.x)+' y:'+round(pl.y)+' vx:'+round(pl.vx)+' vy:'+round(pl.vy)+' ax:'+round(pl.ax)+' ay:'+round(pl.ay)+' arc:'+round(pl.arc*180/PI),100,100);
 		clock++;
 		bgColorTimer++;
@@ -485,8 +568,80 @@
 			retry();
 	});
 	
+/*********************吃钻石*******************************/
+	function eatDiamond(f)
+	{
+		switch(f)
+		{
+		case 0: var s=ranInt(2,8);showInfo('Score +'+s+'0000');func_addScore(s);break;
+		case 1: showInfo('减速');func_slow(2);break;
+		case 2: showInfo('1 UP');func_oneUp();break;
+		case 3: showInfo('无敌');func_wudi(5000);break;
+		case 4: showInfo('清屏');func_clear();break;
+		}
+	}
+	
+	function showInfo(s)//在小鱼上面显示文字
+	{
+		info=s;
+	}
+	
+	function func_addScore()
+	{
+		score+=s*1000;//对玩家显示加了s万分
+	}
+	
+	function func_slow(t)
+	{
+		ballSpeed/=t;
+		bigBallSpeed/=t;
+		butterflySpeed/=t;
+		starSpeed/=t;
+		setTimeout(function()
+		{
+			ballSpeed*=t;
+			bigBallSpeed*=t;
+			butterflySpeed*=t;
+			starSpeed*=t;
+		},5000);
+	}
+	
+	function func_oneUp()
+	{
+		life++;
+	}
+	
+	function func_wudi(time)
+	{
+		wudi=true;
+		setTimeout(function()
+		{
+			wudi=false;
+		},time);
+	}
+	
+	function func_clear()
+	{
+		balls=[];
+		bigBalls=[];
+		butterflys=[];
+		stars=[];
+	}
+	
 /*********************玩家挂了*****************************/
-	function die(item)
+	function kill()
+	{
+		if (!wudi&&!died) 
+		{
+			life--;
+			showInfo('剩余生命: '+life);
+			func_wudi(3500);
+		}
+		if (!life) 
+			die();
+	}
+
+	function die()
 	{
 		if (died) return;
 		died=true;
@@ -499,7 +654,7 @@
 		'padding-top:20px;'+
 		'color:#eef;'+
 		'">'+
-		'GAME OVER<div style="font-size:24px;padding-top:20px;">YOUR SCORE IS '+floor(Math.pow(clock,1.1))+'0.</div>'+
+		'GAME OVER<div style="font-size:24px;padding-top:20px;">YOUR SCORE IS '+floor(Math.pow(clock,1.1))+score+'0.</div>'+
 		'<div id="retry" style="margin-top:30px;background:#227;">TRY AGAIN</div></div>');
 	}
 	
@@ -509,9 +664,12 @@
 		$('html').css({cursor:'none'});
 		died=false;
 		clock=0;
+		score=0;
+		wudi=false;
 		balls=[];
 		bigBalls=[];
 		butterflys=[];
 		stars=[];
+		diamonds=[];
 		level=0;
 	}
