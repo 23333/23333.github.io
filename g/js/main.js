@@ -5,11 +5,8 @@
 /*******************添加canvas**********************/
 	var width=document.documentElement.clientWidth;
 	var height=document.documentElement.clientHeight;
-	$('body').prepend('<canvas id="canv" style="position:absolute;left:0px;top:0px;" width='+width+'px height='+height+'px>请换个浏览器。。</canvas>');
+	$('body').prepend('<canvas id="canv" tabindex="0" style="position:absolute;left:0px;top:0px;" width='+width+'px height='+height+'px>请换个浏览器。。</canvas>');
 	var cv=$('#canv')[0].getContext('2d');
-
-/*******************隐藏鼠标************************/
-	$('html').css({cursor:'none'});
 
 /*******************数学计算函数********************/
 	var cos=Math.cos, sin=Math.sin, random=Math.random, PI=Math.PI, abs=Math.abs, atan2=Math.atan2, round=Math.round, floor=Math.floor, sqrt=Math.sqrt;
@@ -44,11 +41,26 @@
 		return floor(a+(b-a+1)*random());
 	}
 
+/*******************strings*************************/
+	var _gamename='hahahaha';
+	var _instructions='INSTROCTIONS';
+	var _startgame='START GAME';
+	var _pause='PAUSE';
+	var _continue='CONTINUE';
+	var _scoreis='YOUR SCORE IS: ';
+	var _life='剩余生命: ';
+	var _wudi='无敌';
+	var _jiansu='减速';
+	var _qingping='清屏';
+	var _1up='1 UP';
+	var _bianxiao='变小';
+	
 /*******************全局变量&常量声明***************/
 	var mx,my,bg,pl,plSize,cursorSize,ballSize,bigBallSize,bSize,butterflySize,starSize,d1,d2,d3,t1,t2,score,u1,u2,
 		fps,planeShape,butterflyLine,butterflyShape,diamondShape,Star_6,balls,bigBalls,butterflys,stars,diamonds,ballSpeed,
 		bigBallSpeed,butterflySpeed,starSpeed,ballDensity,bigBallDensity,butterflyDensity,diamondDensity,ballStyle,
-		clock,died,level,judge,startBgColor=ranInt(0,359),bgColorTimer=0,life,wudi,wudiTimer,smallTimer,slowTimer,info;
+		clock,died,level,judge,startBgColor=ranInt(0,359),bgColorTimer=0,life,wudi,wudiTimer,smallTimer,slowTimer,info,timer,flash,pause,pauseTimes;
+		
 	function prepossessing()
 	{
 		mx=width/7,my=height/2;//鼠标位置
@@ -86,7 +98,8 @@
 		starSpeed=6;
 		ballDensity=0.5;//每一帧新产生一个ball的概率
 		bigBallDensity=0.08;//每一帧新产生一个泡泡的概率
-		butterflyDensity=6;//每次每边产生蝴蝶个数
+		butterflyDensity=5;//每次每边产生蝴蝶个数
+		starDensity=8;//每8个时钟产生一个
 		diamondDensity=0.0012;//宝石掉落几率
 		ballStyle='#eef';
 		clock=0;
@@ -99,14 +112,26 @@
 			star:cube(plSize/4+starSize),
 			diamond:cube(plSize/4+15)
 		};
-		life=3;
+		life=5;
 		wudi=false;
-		wudiTimer=null;
-		smallTimer=null;
-		slowTimer=null;
+		window.clearTimeout(wudiTimer);
+		window.clearTimeout(smallTimer);
+		window.clearTimeout(slowTimer);
+		flash=0;
 		info='';//调试信息
+		pause=false;
+		pauseTimes=30;//最大暂停次数
 	}
 	prepossessing();
+	drawBG();
+	
+/*******************开始游戏************************/
+	
+	$('body').append('<div id="startgame">'+_gamename+
+		'<div id="instructions">'+_instructions+'</div>'+
+		'<div id="startbutton" class="button">'+_startgame+'</div></div>');
+	$('#startgame').css('left',width/2-200+'px');
+	$('#startgame').css('top',height/2-100+'px');
 	
 /*******************各个绘图函数********************/
 	function hsvToRgb(h,s,v)//hsv转rgb
@@ -192,8 +217,20 @@
 		cv.beginPath(); 
 		cv.arc(pl.x+plSize*0.5*cos(pl.arc), pl.y+plSize*0.5*sin(pl.arc), 0.1*plSize, 0, Math.PI*2, true); 
 		cv.fillStyle = "#000000"; 
-		cv.fill();
 		cv.closePath();
+		cv.fill();
+		if (wudi)
+		{
+			cv.beginPath();
+			var bigBallStyle=cv.createRadialGradient(pl.x,pl.y,0,pl.x,pl.y,plSize*1.3);
+			bigBallStyle.addColorStop(0,"rgba(255,255,238,0)");
+			bigBallStyle.addColorStop(0.84,"rgba(255,255,238,0.1)");
+			bigBallStyle.addColorStop(1,"rgba(255,255,238,1)");
+			cv.fillStyle=bigBallStyle;
+			cv.arc(pl.x,pl.y,plSize*1.3,0,PI*2,true);//泡泡主体
+			cv.closePath();
+			cv.fill();
+		}
 		cv.restore();
 	}
 
@@ -231,7 +268,7 @@
 		cv.restore();
 	}
 
-	function drawOneBigBall(x,y,r)//画个大泡泡
+	function drawOneBigBall(x,y,r)//画大泡泡
 	{
 		cv.save();
 		cv.beginPath();
@@ -260,12 +297,11 @@
 		}
 	}
 
-	function drawOneButterfly(x,y,deg,color)//画个蝴蝶
+	function drawOneButterfly(x,y,deg,color)//画蝴蝶
 	{
 		cv.save();
-		
 		cv.strokeStyle='white';
-		cv.lineWidth=1;
+		cv.lineWidth=0.5;
 		cv.beginPath();
 		for (var i in butterflyLine) 
 		{
@@ -274,7 +310,7 @@
 		}
 		cv.closePath();
 		cv.stroke();
-		
+		cv.lineWidth=1;
 		cv.fillStyle=color;
 		cv.strokeStyle='#fff';
 		drawItem(butterflyShape,x,y,deg);
@@ -378,10 +414,10 @@
 
 	function addButterfly()//蝴蝶，路径为圆弧
 	{
-		var z=width/5;
+		var z=width/butterflyDensity;
 		var u=ran(0,z);//随机偏移量
 		var r=1.2*height;
-		for (var i=0;i<5;i++)
+		for (var i=0;i<butterflyDensity;i++)
 		{
 			var c;
 			var t=[255,255,255];
@@ -392,7 +428,7 @@
 			butterflys.push({x:u+r+i*z,y:r,cx:u+r+i*z,cy:0,r:r,color:clr,rspeed:rad(butterflySpeed-i*0.02),deg:rad(180-i*10),pos:rad(90-i*10)});
 		}
 		u=ran(0,z);
-		for (var i=0;i<5;i++)
+		for (var i=0;i<butterflyDensity;i++)
 		{
 			var c;
 			var t=[255,255,255];
@@ -415,7 +451,7 @@
 	{
 		var a=width/10,b=9*a;
 		var x=b-(cube(ran(a,b))-a*a)/(b*b-a*a)*(b-a);//使其分布在右侧较为密集
-		diamonds.push({x:x,y:-50,speed:ran(1.5,2),func:ranInt(0,4)});
+		diamonds.push({x:x,y:-50,speed:ran(1.5,2),func:ranInt(0,5)});
 	}
 
 /*********************位置变化计算&碰撞判定********************/
@@ -518,51 +554,78 @@
 	*/
 
 /*********************设置绘图时钟周期**********************/
-	var timer=setInterval(function() {
-		drawBG();
-		drawCursor();
-		//drawDiamond(100,100);
-		planeMove();
-		if (!died) drawPlane();
-		ballMove();
-		drawBalls();
-		bigBallMove();
-		drawBigBalls();
-		butterflyMove();
-		drawButterflys();
-		starMove();
-		drawStars();
-		diamondMove();
-		drawDiamonds();
-		if (random()<diamondDensity) addDiamond();
-		if (level<1)
-		{
-			if (random()<ballDensity) addBall(rad(ran(175,185)));
-		}
-		else
-		{
-			if (random()<ballDensity/2) addBall(rad(ran(175,185)));
-		}
-		if (level==1||level==4||level==5||level>6)
-		{
-			if (random()<bigBallDensity) addBigBall(rad(ran(175,185)));
-		}
-		if (level==2||level==5||level>=6)
-		{	
-			if (clock%100==0) addButterfly();
-		}
-		if (level==3||level==4||level>=6)
-		{
-			if (clock%8==0) addStar();	
-		}
-		cv.fillText(info,10,10);
-		//cv.fillText('x:'+round(pl.x)+' y:'+round(pl.y)+' vx:'+round(pl.vx)+' vy:'+round(pl.vy)+' ax:'+round(pl.ax)+' ay:'+round(pl.ay)+' arc:'+round(pl.arc*180/PI),100,100);
-		clock++;
-		bgColorTimer++;
-		if (clock%1200==1199) level++;
-	}, 1000/fps);//fps
+	function clockStart(){
+		timer=setInterval(function() {
+			if (!pause)
+			{
+				drawBG();
+				drawCursor();
+				//drawDiamond(100,100);
+				planeMove();
+				if (!died) drawPlane();
+				ballMove();
+				drawBalls();
+				bigBallMove();
+				drawBigBalls();
+				butterflyMove();
+				drawButterflys();
+				starMove();
+				drawStars();
+				diamondMove();
+				drawDiamonds();
+				if (random()<diamondDensity) addDiamond();
+				if (level<1)
+				{
+					if (random()<ballDensity) addBall(rad(ran(175,185)));
+				}
+				else
+				{
+					if (random()<ballDensity/2) addBall(rad(ran(175,185)));
+				}
+				if (level==1||level==4||level==5||level>6)
+				{
+					if (random()<bigBallDensity) addBigBall(rad(ran(175,185)));
+				}
+				if (level==2||level==5||level>=6)
+				{	
+					if (clock%100==0) addButterfly();
+				}
+				if (level==3||level==4||level>=6)
+				{
+					if (clock%starDensity==0) addStar();	
+				}
+				if (!died)
+				{
+					cv.save();
+					var txt='Score: '+(clock+score)+'0  Life: ';
+					for (var i=0;i<life;i++) txt+='❤';
+					cv.font="20px Arial";
+					cv.fillStyle="#d35";
+					cv.fillText(txt,30,30);
+					cv.restore();
+				}
+				//cv.fillText(clock+score,10,10);
+				//cv.fillText('x:'+round(pl.x)+' y:'+round(pl.y)+' vx:'+round(pl.vx)+' vy:'+round(pl.vy)+' ax:'+round(pl.ax)+' ay:'+round(pl.ay)+' arc:'+round(pl.arc*180/PI),100,100);
+				clock++;
+				bgColorTimer++;
+				if (clock%1200==1199) level++;
+				if (flash==6||flash==1) 
+				{
+					cv.save();
+					cv.fillStyle='rgba(255,255,255,0.5)';
+					cv.fillRect(0,0,width,height);
+					cv.restore();
+					flash--;
+				}
+				else if (flash)
+				{
+					flash--;
+				}
+			}
+		}, 1000/fps);//fps
+	}
 
-/*********************监听鼠标事件**************************/
+/*********************事件监听**************************/
 	document.addEventListener('mousemove',function(e)
 	{
 		mx=e.x;
@@ -571,28 +634,93 @@
 	
 	document.addEventListener('click',function(e)
 	{
-	//	console.log(e);
 		if (e.target.id=='retry')
 			retry();
+		else if (e.target.id=='startbutton')
+		{
+			$('#startgame').remove();
+			$('html').css({cursor:'none'});
+			clockStart();
+		}
+		else if (e.target.id=='continue')
+		{
+			stopPause();
+		}
+		else if (e.target.id=='instructions')
+		{
+			help();
+		}
 	});
 	
-/*********************吃钻石*******************************/
-	function eatDiamond(f)
+	document.addEventListener('keydown',startPause);
+	
+/*********************帮助信息*****************************/
+	function help()
 	{
-		switch(f)
-		{
-		case 0: var s=ranInt(5,8);showInfo('Score +'+s+'000');func_addScore(s);break;
-		case 1: showInfo('减速');func_slow(2);break;
-		case 2: showInfo('1 UP');func_oneUp();break;
-		case 3: showInfo('无敌');func_wudi(6000);break;
-		case 4: showInfo('清屏');func_clear();break;
-		case 5: showInfo('子弹缩小');func_small(2);break;
-		}
+		
 	}
 	
-	function showInfo(s)//在小鱼上面显示文字
+/*********************暂停*********************************/
+	function startPause()
+	{
+		if (pause) 
+		{
+			stopPause();
+			return;
+		}
+		if ($('#die').length)
+		{
+			retry();
+			return;
+		}
+		if ($('#startgame').length)
+		{
+			$('#startgame').remove();
+			$('html').css({cursor:'none'});
+			clockStart();
+			return;
+		}
+		if (pauseTimes<0) 
+			return;
+		$('html').css({cursor:'default'});
+		pause=true;
+		pauseTimes--;
+		$('body').append('<div id="pause">'+_pause+'<div id="instructions">'+_instructions+'</div>'+
+		'<div id="continue" class="button">'+_continue+'</div></div>');
+		$('#pause').css('top',height/2-100+'px');
+		$('#pause').css('left',width/2-200+'px');
+	}
+	
+	function stopPause()
+	{
+		pause=false;
+		$('html').css({cursor:'none'});
+		$('#pause').remove();
+	}
+	
+/*********************吃钻石相关***************************/
+	function eatDiamond(f)
+	{
+		if (!died)
+			switch(f)
+			{
+			case 0: var s=ranInt(5,8);showInfo('Score +'+s+'000');func_addScore(s);break;
+			case 1: showInfo(_jiansu);func_slow(2);break;
+			case 2: showInfo(_1up);func_oneUp();break;
+			case 3: showInfo(_wudi);func_wudi(6000);break;
+			case 4: showInfo(_qingping);func_clear();break;
+			case 5: showInfo(_bianxiao);func_small(2);break;
+			}
+	}
+	
+	function showInfo(s)//在小鱼上方显示文字
 	{
 		info=s;
+		var t=clock;
+		$('body').append('<div id="info'+t+'" class="info">'+s+'</div>');
+		$('#info'+t).css('left',pl.x-100+'px');
+		$('#info'+t).css('top',pl.y-50+'px');
+		$('#info'+t).fadeOut(1500);
 	}
 	
 	function func_addScore(s)
@@ -611,13 +739,22 @@
 		bigBallSpeed/=t;
 		butterflySpeed/=t;
 		starSpeed/=t;
+		ballDensity/=t;
+		bigBallDensity/=t;
+		butterflyDensity/=t;
+		starDensity*=t;
 		slowTimer=setTimeout(function()
 		{
 			ballSpeed*=t;
 			bigBallSpeed*=t;
 			butterflySpeed*=t;
-			starSpeed*=t;
+			starSpeed*=t;	
+			ballDensity*=t;
+			bigBallDensity*=t;
+			butterflyDensity*=t;
+			starDensity/=t;
 		},8000);
+		flash=6;
 	}
 	
 	function func_oneUp()
@@ -637,18 +774,20 @@
 	
 	function func_clear()
 	{
+		
 		balls=[];
 		bigBalls=[];
 		butterflys=[];
 		stars=[];
+		flash=6;
 	}
 	
 	function func_small(t)
 	{
 		var i;
-		for (i in balls) balls[i].size/=t;
+		//for (i in balls) balls[i].size/=t;
 		for (i in bigBalls) bigBalls[i].size/=t;
-		ballSize/=t;
+		//ballSize/=t;
 		bigBallSize/=t;
 		bSize/=t;
 		butterflySize/=t;
@@ -665,7 +804,7 @@
 		};
 		smallTimer=setTimeout(function()
 		{
-			ballSize*=t;
+			//ballSize*=t;
 			bigBallSize*=t;
 			bSize*=t;
 			butterflySize*=t;
@@ -681,6 +820,7 @@
 				diamond:cube(plSize/4+15)
 			};
 		},8000);
+		flash=6;
 	}
 	
 /*********************玩家挂了*****************************/
@@ -693,7 +833,9 @@
 			func_wudi(2500);
 		}
 		if (!life) 
+		{
 			die();
+		}
 	}
 
 	function die()
@@ -701,21 +843,16 @@
 		if (died) return;
 		died=true;
 		$('html').css({cursor:'default'});
-		$('body').append('<div id="die" style="'+
-		'position:absolute;'+
-		'width:400px;height:200px;left:'+(width/2-200)+'px;top:'+(height/2-100)+'px;'+
-		'background:#99c;opacity:0.7;text-align:center;'+
-		'font-family:\'Arial Black\', Gadget, sans-serif;font-size:36px;'+
-		'padding-top:20px;'+
-		'color:#eef;'+
-		'">'+
-		'GAME OVER<div style="font-size:24px;padding-top:20px;">YOUR SCORE IS '+(clock+score)+'0.</div>'+
-		'<div id="retry" style="margin-top:30px;background:#227;">TRY AGAIN</div></div>');
+		$('body').append('<div id="die">GAME OVER<div style="font-size:24px;padding-top:20px;">YOUR SCORE IS '+(clock+score)+'0.</div>'+
+		'<div id="retry" class="button">TRY AGAIN</div></div>');
+		$('#die').css('top',height/2-100+'px');
+		$('#die').css('left',width/2-200+'px');
 	}
 	
 	function retry()
 	{
 		$('#die').remove();
 		$('html').css({cursor:'none'});
+		$('.info').remove();
 		prepossessing();
 	}

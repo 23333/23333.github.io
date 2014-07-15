@@ -1,0 +1,38 @@
+#die,#startgame,#pause
+{
+	position:absolute;
+	width:400px;
+	height:200px;
+	background:#99c;
+	opacity:0.7;
+	text-align:center;
+	font-family:'华文细黑', 'STHeiti Light','STXihei','黑体';
+	font-size:36px;
+	padding-top:20px;
+	color:#eef;
+	box-shadow: 7px 7px 10px rgba(255,255,255,0.3);
+}
+
+#instructions
+{
+	font-size:24px;
+	margin-top:20px;
+	background:#66a;
+}
+
+.info
+{
+	position:absolute;
+	text-align:center;
+	font-family:'华文细黑', 'STHeiti Light','STXihei','黑体';
+	font-size:18px;
+	width:200px;
+	height:100px;
+	color:#444;
+}
+
+.button
+{
+	margin-top:30px;
+	background:#227;
+}
