@@ -1,7 +1,7 @@
 /*******************清空上一次内容******************/
-	$('body')[0].innerHTML='<audio id="music" src="music/PilgrimsOnALongJourney.mp3" autoplay="autoplay" loop="loop"></audio>';
+	$('body')[0].innerHTML='<audio id="music" src="music/PilgrimsOnALongJourney.mp3" loop="loop"></audio>';
 	if (timer) window.clearInterval(timer);
-
+//明天要做的: 本地排名，鱼身后的水波，界面优化，代码优化
 /*******************添加canvas**********************/
 	var width=document.documentElement.clientWidth;
 	var height=document.documentElement.clientHeight;
@@ -49,6 +49,8 @@
 	var _pause='PAUSE';
 	var _continue='CONTINUE';
 	var _scoreis='YOUR SCORE IS: ';
+	var _ranking='RANKING';
+	var _tryagain='TRY AGAIN';
 	var _life='剩余生命: ';
 	var _wudi='无敌';
 	var _jiansu='减速';
@@ -595,7 +597,8 @@
 				if (random()<diamondDensity) addDiamond();
 				if (level<1)
 				{
-					if (random()<ballDensity) addBall(rad(ran(175,185)));
+					if (clock<1200&&random()<ballDensity*clock/1200||clock>=1200&&random()<ballDensity)
+						addBall(rad(ran(175,185)));
 				}
 				else
 				{
@@ -628,7 +631,8 @@
 				//cv.fillText('x:'+round(pl.x)+' y:'+round(pl.y)+' vx:'+round(pl.vx)+' vy:'+round(pl.vy)+' ax:'+round(pl.ax)+' ay:'+round(pl.ay)+' arc:'+round(pl.arc*180/PI),100,100);
 				clock++;
 				bgColorTimer++;
-				if (clock%1200==1199) level++;
+				if (clock==1800) level++;
+				if (clock>1800&&clock%1200==600) level++;
 				if (flash==8||flash==7||flash==2||flash==1) 
 				{
 					cv.save();
@@ -661,6 +665,7 @@
 			$('#startgame').remove();
 			$('html').css({cursor:'none'});
 			clockStart();
+			$('#music')[0].play();
 		}
 		else if (e.target.id=='continue')
 		{
@@ -758,7 +763,7 @@
 			$('#about').css('background','#99c');
 			$('#right').fadeOut(300);
 		});
-		$('audio')[0].pause();
+		$('#music')[0].pause();
 	}
 	
 	function stopPause()
@@ -768,7 +773,7 @@
 		$('#pause').remove();
 		$('#left').fadeOut(300);
 		$('#right').fadeOut(300);
-		$('audio')[0].play();
+		$('#music')[0].play();
 	}
 	
 /*********************吃钻石相关***************************/
@@ -918,7 +923,7 @@
 		died=true;
 		$('html').css({cursor:'default'});
 		$('body').append('<div id="die"><div class="title">GAME OVER</div><div id="score">YOUR SCORE IS '+(clock+score)+'0.</div>'+
-		'<div id="ranking">RANKING</div><div id="retry" class="button">TRY AGAIN</div></div>');
+		'<div id="ranking">'+_ranking+'</div><div id="retry" class="button">'+_tryagain+'</div></div>');
 		$('#die').css('top',height/2-100+'px');
 		$('#die').css('left',width/2-200+'px');
 		$('#ranking').mouseenter(function()
@@ -939,7 +944,7 @@
 		$('html').css({cursor:'none'});
 		$('.info').remove();
 		prepossessing();
-		$('audio')[0].pause();
-		$('audio')[0].currentTime=0;
-		$('audio')[0].play();
+		$('#music')[0].pause();
+		$('#music')[0].currentTime=0;
+		$('#music')[0].play();
 	}
