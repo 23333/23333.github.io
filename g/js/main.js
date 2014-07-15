@@ -54,7 +54,7 @@
 	var bigBallSize=40;
 	var bSize=10;//蝴蝶判定点大小
 	var butterflySize=bSize-2;
-	var starSize=10;
+	var starSize=6;
 	var d1 = 25;var d2 = d1/25*30;var d3 = d1/25*27;var t1 = 20,t2 = 40;//diamond大小的几个参数
 	var score=0;
 	var u1=6,u2=80;//控制飞机运动的两个阻尼参数, u1:越大表示加速度受速度的负影响越大 u2:越大表示速度越慢
@@ -78,7 +78,7 @@
 	var bigBallSpeed=3.8;
 	var butterflySpeed=0.35;
 	var starSpeed=9;
-	var ballDensity=0.8;//每一帧新产生一个ball的概率
+	var ballDensity=0.5;//每一帧新产生一个ball的概率
 	var bigBallDensity=0.08;//每一帧新产生一个泡泡的概率
 	var butterflyDensity=6;//每次每边产生蝴蝶个数
 	var diamondDensity=0.0015;//宝石掉落几率
@@ -97,6 +97,7 @@
 	var bgColorTimer=0;
 	var life=3;
 	var wudi=false;
+	var wudiTimer;
 	var info='';//调试信息
 	
 /*******************各个绘图函数********************/
@@ -532,7 +533,7 @@
 		}
 		else
 		{
-			if (random()<ballDensity/3) addBall(rad(ran(175,185)));
+			if (random()<ballDensity/2) addBall(rad(ran(175,185)));
 		}
 		if (level==1||level==4||level==5||level>6)
 		{
@@ -572,10 +573,10 @@
 	{
 		switch(f)
 		{
-		case 0: var s=ranInt(2,8);showInfo('Score +'+s+'0000');func_addScore(s);break;
+		case 0: var s=ranInt(2,5);showInfo('Score +'+s+'0000');func_addScore(s);break;
 		case 1: showInfo('减速');func_slow(2);break;
 		case 2: showInfo('1 UP');func_oneUp();break;
-		case 3: showInfo('无敌');func_wudi(5000);break;
+		case 3: showInfo('无敌');func_wudi(6000);break;
 		case 4: showInfo('清屏');func_clear();break;
 		}
 	}
@@ -592,6 +593,11 @@
 	
 	function func_slow(t)
 	{
+		var i;
+		for (i in balls) balls[i].speed/=t;
+		for (i in bigBalls) bigBalls[i].speed/=t;
+		for (i in butterflys) butterflys[i].rspeed/=t;
+		for (i in stars) stars[i].speed/=t;
 		ballSpeed/=t;
 		bigBallSpeed/=t;
 		butterflySpeed/=t;
@@ -602,7 +608,7 @@
 			bigBallSpeed*=t;
 			butterflySpeed*=t;
 			starSpeed*=t;
-		},5000);
+		},8000);
 	}
 	
 	function func_oneUp()
@@ -612,8 +618,9 @@
 	
 	function func_wudi(time)
 	{
+		if (wudiTimer) window.clearTimeout(wudiTimer);//清除之前无敌的计时器
 		wudi=true;
-		setTimeout(function()
+		wudiTimer=setTimeout(function()
 		{
 			wudi=false;
 		},time);
@@ -634,7 +641,7 @@
 		{
 			life--;
 			showInfo('剩余生命: '+life);
-			func_wudi(3500);
+			func_wudi(2500);
 		}
 		if (!life) 
 			die();
@@ -653,7 +660,7 @@
 		'padding-top:20px;'+
 		'color:#eef;'+
 		'">'+
-		'GAME OVER<div style="font-size:24px;padding-top:20px;">YOUR SCORE IS '+floor(Math.pow(clock,1.1))+score+'0.</div>'+
+		'GAME OVER<div style="font-size:24px;padding-top:20px;">YOUR SCORE IS '+clock+score+'0.</div>'+
 		'<div id="retry" style="margin-top:30px;background:#227;">TRY AGAIN</div></div>');
 	}
 	
