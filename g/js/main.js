@@ -671,4 +671,5 @@
 		stars=[];
 		diamonds=[];
 		level=0;
+		life=3;
 	}
