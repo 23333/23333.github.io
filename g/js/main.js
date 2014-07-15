@@ -45,60 +45,66 @@
 	}
 
 /*******************全局变量&常量声明***************/
-	var mx=width/7,my=height/2;//鼠标位置
-	var bg;//=cv.createLinearGradient(0,0,0,height);//bg.addColorStop(0,'#cbebdb');bg.addColorStop(1,'#55a5c5');//背景渐变色
-	var pl={x:width/9,y:height/2,vx:0,vy:0,ax:0,ay:0,arc:0};//飞机的初始运动参数
-	var plSize=20;//飞机大小
-	var cursorSize=6;//指针大小
-	var ballSize=4;
-	var bigBallSize=40;
-	var bSize=10;//蝴蝶判定点大小
-	var butterflySize=bSize-2;
-	var starSize=6;
-	var d1 = 25;var d2 = d1/25*30;var d3 = d1/25*27;var t1 = 20,t2 = 40;//diamond大小的几个参数
-	var score=0;
-	var u1=6,u2=80;//控制飞机运动的两个阻尼参数, u1:越大表示加速度受速度的负影响越大 u2:越大表示速度越慢
-	var fps=60;//帧率
-	//var planeShape=[{r:plSize,t:0},{r:plSize,t:rad(165)},{r:plSize/2,t:rad(180)},{r:plSize,t:rad(195)}];//飞机的极坐标数组
-	var planeShape=[{r:plSize*1,t:PI+3.14},{r:plSize*0.716,t:PI+-2.98},{r:plSize*0.443,t:PI+-2.49},{r:plSize*0.443,t:PI-0.65},{r:plSize*0.716,t:PI-0.25},{r:plSize*1,t:PI+0},//{r:plSize*1.692,t:PI+-0.11},{r:plSize*1.692,t:PI+0.11},
+	function prepossessing()
+	{
+		mx=width/7,my=height/2;//鼠标位置
+		bg;//=cv.createLinearGradient(0,0,0,height);//bg.addColorStop(0,'#cbebdb');bg.addColorStop(1,'#55a5c5');//背景渐变色
+		pl={x:width/9,y:height/2,vx:0,vy:0,ax:0,ay:0,arc:0};//飞机的初始运动参数
+		plSize=20;//飞机大小
+		cursorSize=6;//指针大小
+		ballSize=4;
+		bigBallSize=40;
+		bSize=10;//蝴蝶判定点大小
+		butterflySize=bSize-2;
+		starSize=6;
+		d1 = 25;d2 = d1/25*30;d3 = d1/25*27;t1 = 20;t2 = 40;//diamond大小的几个参数
+		score=0;
+		u1=6,u2=80;//控制飞机运动的两个阻尼参数, u1:越大表示加速度受速度的负影响越大 u2:越大表示速度越慢
+		fps=60;//帧率
+		//var planeShape=[{r:plSize,t:0},{r:plSize,t:rad(165)},{r:plSize/2,t:rad(180)},{r:plSize,t:rad(195)}];//飞机的极坐标数组
+		planeShape=[{r:plSize*1,t:PI+3.14},{r:plSize*0.716,t:PI+-2.98},{r:plSize*0.443,t:PI+-2.49},{r:plSize*0.443,t:PI-0.65},{r:plSize*0.716,t:PI-0.25},{r:plSize*1,t:PI+0},//{r:plSize*1.692,t:PI+-0.11},{r:plSize*1.692,t:PI+0.11},
 		{r:plSize*1,t:PI+0},{r:plSize*0.716,t:PI+0.25},{r:plSize*0.443,t:PI+0.65},{r:plSize*0.443,t:PI+2.49},{r:plSize*0.716,t:PI+2.98}];
-	var butterflyLine=[/*{r:2.4,t:rad(130)},{r:2.5,t:rad(140)},{r:2.5,t:rad(220)},{r:2.4,t:rad(230)},*/{r:3,t:rad(15)},{r:3,t:rad(345)}];//蝴蝶身上的线的极坐标
-	var butterflyShape=[{r:1,t:0},{r:2.7,t:rad(35)},{r:3.5,t:rad(45)},{r:3.2,t:rad(55)},{r:2.33,t:rad(95)},{r:1,t:rad(90)},{r:2,t:rad(120)},{r:2.1,t:rad(150)},{r:1,t:rad(180)},
+		butterflyLine=[/*{r:2.4,t:rad(130)},{r:2.5,t:rad(140)},{r:2.5,t:rad(220)},{r:2.4,t:rad(230)},*/{r:3,t:rad(15)},{r:3,t:rad(345)}];//蝴蝶身上的线的极坐标
+		butterflyShape=[{r:1,t:0},{r:2.7,t:rad(35)},{r:3.5,t:rad(45)},{r:3.2,t:rad(55)},{r:2.33,t:rad(95)},{r:1,t:rad(90)},{r:2,t:rad(120)},{r:2.1,t:rad(150)},{r:1,t:rad(180)},
 						{r:2.1,t:rad(210)},{r:2,t:rad(240)},{r:1,t:rad(270)},{r:2.33,t:rad(265)},{r:3.2,t:rad(305)},{r:3.5,t:rad(315)},{r:2.7,t:rad(325)}];
-	var diamondShape = [{r:d1,t:PI+rad(90+t1+t2/2)},{r:d2,t:PI+rad(90+t2/2)},{r:d2,t:PI+rad(90-t2/2)},{r:d1,t:PI+rad(90-t1-t2/2)},{r:0,t:PI}];
-	var Star_6 = [{r:starSize,t:rad(90)},{r:starSize/2*1.5,t:rad(60)},{r:starSize,t:rad(30)},{r:starSize/2*1.5,t:rad(0)},{r:starSize,t:rad(-30)},{r:starSize/2*1.5,t:rad(-60)},{r:starSize,t:rad(-90)},
+		diamondShape = [{r:d1,t:PI+rad(90+t1+t2/2)},{r:d2,t:PI+rad(90+t2/2)},{r:d2,t:PI+rad(90-t2/2)},{r:d1,t:PI+rad(90-t1-t2/2)},{r:0,t:PI}];
+		Star_6 = [{r:starSize,t:rad(90)},{r:starSize/2*1.5,t:rad(60)},{r:starSize,t:rad(30)},{r:starSize/2*1.5,t:rad(0)},{r:starSize,t:rad(-30)},{r:starSize/2*1.5,t:rad(-60)},{r:starSize,t:rad(-90)},
 				{r:starSize/2*1.5,t:rad(-120)},{r:starSize,t:rad(-150)},{r:starSize/2*1.5,t:rad(-180)},{r:starSize,t:rad(-210)},{r:starSize/2*1.5,t:rad(-240)}];
-	for (var i in butterflyShape) butterflyShape[i].r*=bSize;
-	var balls=[];         //以下四个存储画面中的炮弹
-	var bigBalls=[];
-	var butterflys=[];
-	var stars=[];
-	var diamonds=[];
-	var ballSpeed=4.2;
-	var bigBallSpeed=3.8;
-	var butterflySpeed=0.35;
-	var starSpeed=9;
-	var ballDensity=0.5;//每一帧新产生一个ball的概率
-	var bigBallDensity=0.08;//每一帧新产生一个泡泡的概率
-	var butterflyDensity=6;//每次每边产生蝴蝶个数
-	var diamondDensity=0.0015;//宝石掉落几率
-	var ballStyle='#eef';
-	var clock=0;
-	var died=false;
-	var level=0;
-	var judge={
+		for (var i in butterflyShape) butterflyShape[i].r*=bSize;
+		balls=[];         //以下四个存储画面中的炮弹
+		bigBalls=[];
+		butterflys=[];
+		stars=[];
+		diamonds=[];
+		ballSpeed=4.2;
+		bigBallSpeed=3.8;
+		butterflySpeed=0.35;
+		starSpeed=6;
+		ballDensity=0.5;//每一帧新产生一个ball的概率
+		bigBallDensity=0.08;//每一帧新产生一个泡泡的概率
+		butterflyDensity=6;//每次每边产生蝴蝶个数
+		diamondDensity=0.0012;//宝石掉落几率
+		ballStyle='#eef';
+		clock=0;
+		died=false;
+		level=0;
+		judge={
 		ball:cube(plSize/4+ballSize),
 		bigBall:cube(plSize/4+bigBallSize),
-		butterfly:cube(plSize/4+butterflySize),
-		star:cube(plSize/4+starSize),
-		diamond:cube(plSize/4+15)
-	};
-	var startBgColor=ranInt(0,359);
-	var bgColorTimer=0;
-	var life=3;
-	var wudi=false;
-	var wudiTimer;
-	var info='';//调试信息
+			butterfly:cube(plSize/4+butterflySize),
+			star:cube(plSize/4+starSize),
+			diamond:cube(plSize/4+15)
+		};
+		startBgColor=ranInt(0,359);
+		bgColorTimer=0;
+		life=3;
+		wudi=false;
+		wudiTimer=null;
+		smallTimer=null;
+		slowTimer=null;
+		info='';//调试信息
+	}
+	prepossessing();
 	
 /*******************各个绘图函数********************/
 	function hsvToRgb(h,s,v)//hsv转rgb
@@ -173,7 +179,7 @@
 	{
 		cv.save();
 		cv.fillStyle='#e44';
-		if (wudi&&((clock/3)&1)) cv.fillStyle='#ee9';
+		if (wudi&&((clock/4)&1)) cv.fillStyle='rgba(238,68,68,0.15)';
 		drawItem(planeShape,pl.x,pl.y,pl.arc);
 		cv.fill();
 		var tail=8*cos(rad(clock*7));
@@ -539,11 +545,11 @@
 		{
 			if (random()<bigBallDensity) addBigBall(rad(ran(175,185)));
 		}
-		if (level==2||level==4||level>=6)
+		if (level==2||level==5||level>=6)
 		{	
 			if (clock%100==0) addButterfly();
 		}
-		if (level==3||level==5||level>=6)
+		if (level==3||level==4||level>=6)
 		{
 			if (clock%8==0) addStar();	
 		}
@@ -573,11 +579,12 @@
 	{
 		switch(f)
 		{
-		case 0: var s=ranInt(2,5);showInfo('Score +'+s+'0000');func_addScore(s);break;
+		case 0: var s=ranInt(5,8);showInfo('Score +'+s+'000');func_addScore(s);break;
 		case 1: showInfo('减速');func_slow(2);break;
 		case 2: showInfo('1 UP');func_oneUp();break;
 		case 3: showInfo('无敌');func_wudi(6000);break;
 		case 4: showInfo('清屏');func_clear();break;
+		case 5: showInfo('子弹缩小');func_small(2);break;
 		}
 	}
 	
@@ -588,7 +595,7 @@
 	
 	function func_addScore(s)
 	{
-		score+=s*1000;//对玩家显示加了s万分
+		score+=s*100;//对玩家显示加了s千分
 	}
 	
 	function func_slow(t)
@@ -602,7 +609,7 @@
 		bigBallSpeed/=t;
 		butterflySpeed/=t;
 		starSpeed/=t;
-		setTimeout(function()
+		slowTimer=setTimeout(function()
 		{
 			ballSpeed*=t;
 			bigBallSpeed*=t;
@@ -634,6 +641,46 @@
 		stars=[];
 	}
 	
+	function func_small(t)
+	{
+		var i;
+		for (i in balls) balls[i].size/=t;
+		for (i in bigBalls) bigBalls[i].size/=t;
+		ballSize/=t;
+		bigBallSize/=t;
+		bSize/=t;
+		butterflySize/=t;
+		starSize/=t;
+		for (i in butterflyShape) butterflyShape[i].r/=t;
+		Star_6 = [{r:starSize,t:rad(90)},{r:starSize/2*1.5,t:rad(60)},{r:starSize,t:rad(30)},{r:starSize/2*1.5,t:rad(0)},{r:starSize,t:rad(-30)},{r:starSize/2*1.5,t:rad(-60)},{r:starSize,t:rad(-90)},
+				{r:starSize/2*1.5,t:rad(-120)},{r:starSize,t:rad(-150)},{r:starSize/2*1.5,t:rad(-180)},{r:starSize,t:rad(-210)},{r:starSize/2*1.5,t:rad(-240)}];
+		judge={
+			ball:cube(plSize/4+ballSize),
+			bigBall:cube(plSize/4+bigBallSize),
+			butterfly:cube(plSize/4+butterflySize),
+			star:cube(plSize/4+starSize),
+			diamond:cube(plSize/4+15)
+		};
+		smallTimer=setTimeout(function()
+		{
+			ballSize*=t;
+			bigBallSize*=t;
+			bSize*=t;
+			butterflySize*=t;
+			starSize*=t;
+			for (i in butterflyShape) butterflyShape[i].r*=t;
+			Star_6 = [{r:starSize,t:rad(90)},{r:starSize/2*1.5,t:rad(60)},{r:starSize,t:rad(30)},{r:starSize/2*1.5,t:rad(0)},{r:starSize,t:rad(-30)},{r:starSize/2*1.5,t:rad(-60)},{r:starSize,t:rad(-90)},
+				{r:starSize/2*1.5,t:rad(-120)},{r:starSize,t:rad(-150)},{r:starSize/2*1.5,t:rad(-180)},{r:starSize,t:rad(-210)},{r:starSize/2*1.5,t:rad(-240)}];
+			judge={
+				ball:cube(plSize/4+ballSize),
+				bigBall:cube(plSize/4+bigBallSize),
+				butterfly:cube(plSize/4+butterflySize),
+				star:cube(plSize/4+starSize),
+				diamond:cube(plSize/4+15)
+			};
+		},8000);
+	}
+	
 /*********************玩家挂了*****************************/
 	function kill()
 	{
@@ -660,7 +707,7 @@
 		'padding-top:20px;'+
 		'color:#eef;'+
 		'">'+
-		'GAME OVER<div style="font-size:24px;padding-top:20px;">YOUR SCORE IS '+clock+score+'0.</div>'+
+		'GAME OVER<div style="font-size:24px;padding-top:20px;">YOUR SCORE IS '+(clock+score)+'0.</div>'+
 		'<div id="retry" style="margin-top:30px;background:#227;">TRY AGAIN</div></div>');
 	}
 	
@@ -668,15 +715,5 @@
 	{
 		$('#die').remove();
 		$('html').css({cursor:'none'});
-		died=false;
-		clock=0;
-		score=0;
-		wudi=false;
-		balls=[];
-		bigBalls=[];
-		butterflys=[];
-		stars=[];
-		diamonds=[];
-		level=0;
-		life=3;
+		prepossessing();
 	}
