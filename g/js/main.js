@@ -1,5 +1,5 @@
 /*******************清空上一次内容******************/
-	$('body')[0].innerHTML='<EMBED src="music/Pilgrims on a Long Journey.mp3.mp3" autostart="true" loop="true">';
+	$('body')[0].innerHTML='<audio src="music/Pilgrims on a Long Journey.mp3.mp3" autoplay="autoplay" loop="loop">';
 	if (timer) window.clearInterval(timer);
 
 /*******************添加canvas**********************/
