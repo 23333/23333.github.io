@@ -1,5 +1,5 @@
 /*******************清空上一次内容******************/
-	$('body')[0].innerHTML='<audio src="music/PilgrimsOnALongJourney.mp3" autoplay="autoplay" loop="loop"></audio>';
+	$('body')[0].innerHTML='<audio id="music" src="music/PilgrimsOnALongJourney.mp3" autoplay="autoplay" loop="loop"></audio>';
 	if (timer) window.clearInterval(timer);
 
 /*******************添加canvas**********************/
@@ -618,6 +618,7 @@
 					cv.save();
 					var txt='Score: '+(clock+score)+'0  Life: ';
 					for (var i=0;i<life;i++) txt+='❤';
+					txt+='  Level: '+(level>5?'MAX':level+1);
 					cv.font="20px Arial";
 					cv.fillStyle="#d35";
 					cv.fillText(txt,30,30);
@@ -757,6 +758,7 @@
 			$('#about').css('background','#99c');
 			$('#right').fadeOut(300);
 		});
+		$('audio')[0].pause();
 	}
 	
 	function stopPause()
@@ -766,6 +768,7 @@
 		$('#pause').remove();
 		$('#left').fadeOut(300);
 		$('#right').fadeOut(300);
+		$('audio')[0].play();
 	}
 	
 /*********************吃钻石相关***************************/
@@ -936,4 +939,7 @@
 		$('html').css({cursor:'none'});
 		$('.info').remove();
 		prepossessing();
+		$('audio')[0].pause();
+		$('audio')[0].currentTime=0;
+		$('audio')[0].play();
 	}
