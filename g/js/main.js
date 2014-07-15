@@ -44,6 +44,7 @@
 /*******************strings*************************/
 	var _gamename='hahahaha';
 	var _instructions='INSTROCTIONS';
+	var _about='ABOUT';
 	var _startgame='START GAME';
 	var _pause='PAUSE';
 	var _continue='CONTINUE';
@@ -58,7 +59,7 @@
 /*******************全局变量&常量声明***************/
 	var mx,my,bg,pl,plSize,cursorSize,ballSize,bigBallSize,bSize,butterflySize,starSize,d1,d2,d3,t1,t2,score,u1,u2,
 		fps,planeShape,butterflyLine,butterflyShape,diamondShape,Star_6,balls,bigBalls,butterflys,stars,diamonds,ballSpeed,
-		bigBallSpeed,butterflySpeed,starSpeed,ballDensity,bigBallDensity,butterflyDensity,diamondDensity,ballStyle,
+		bigBallSpeed,butterflySpeed,starSpeed,ballDensity,bigBallDensity,butterflyDensity,diamondDensity,ballStyle,instructionsContent,aboutContent,
 		clock,died,level,judge,startBgColor=ranInt(0,359),bgColorTimer=0,life,wudi,wudiTimer,smallTimer,slowTimer,info,timer,flash,pause,pauseTimes;
 		
 	function prepossessing()
@@ -118,6 +119,8 @@
 		window.clearTimeout(smallTimer);
 		window.clearTimeout(slowTimer);
 		flash=0;
+		instructionsContent='<b style="font-size:22px;"><p>游戏说明</p></b><p>移动鼠标控制小鱼 躲避飞来的障碍</p><p>吃钻石道具可以随机获得特殊能力</p><p>共有4种障碍物和6种特殊能力(^^)/</p>';
+		aboutContent='<b style="font-size:22px;"><p>关于</p></b><p>作者①: 周伯威 zhou_bw@yeah.net</p><p>作者②: 林杨湄 linym012@163.com</p><p>Copyright © 2014. All rights reserved.</p>';
 		info='';//调试信息
 		pause=false;
 		pauseTimes=30;//最大暂停次数
@@ -127,11 +130,27 @@
 	
 /*******************开始游戏************************/
 	
-	$('body').append('<div id="startgame">'+_gamename+
-		'<div id="instructions">'+_instructions+'</div>'+
+	$('body').append('<div id="startgame"><div class="title">'+_gamename+
+		'</div><div id="instructions">'+_instructions+'</div>'+
+		'<div id="about">'+_about+'</div>'+
 		'<div id="startbutton" class="button">'+_startgame+'</div></div>');
+	$('body').append('<div class="moreinfo" id="left"></div>');
+	$('body').append('<div class="moreinfo" id="right"></div>');
+	$('body').append('<div class="moreinfo" id="right2"></div>');
 	$('#startgame').css('left',width/2-200+'px');
 	$('#startgame').css('top',height/2-100+'px');
+	$('#left').css('left','20px');
+	$('#left').css('width',width/2-240+'px');
+	$('#left').css('top',height/2-100+'px');
+	$('#right').css('left',width/2+220+'px');
+	$('#right').css('width',width/2-240+'px');
+	$('#right').css('top',height/2-100+'px');
+	$('#right2').css('left',width/2+220+'px');
+	$('#right2').css('width',width/2-240+'px');
+	$('#right2').css('top',height/2-100+'px');
+	addHelpInfo();
+	addAboutInfo();
+	addRankingInfo();
 	
 /*******************各个绘图函数********************/
 	function hsvToRgb(h,s,v)//hsv转rgb
@@ -609,7 +628,7 @@
 				clock++;
 				bgColorTimer++;
 				if (clock%1200==1199) level++;
-				if (flash==6||flash==1) 
+				if (flash==8||flash==7||flash==2||flash==1) 
 				{
 					cv.save();
 					cv.fillStyle='rgba(255,255,255,0.5)';
@@ -646,23 +665,52 @@
 		{
 			stopPause();
 		}
-		else if (e.target.id=='instructions')
-		{
-			help();
-		}
 	});
 	
 	document.addEventListener('keydown',startPause);
 	
-/*********************帮助信息*****************************/
-	function help()
+/*********************帮助&关于信息************************/
+	$('#instructions').mouseenter(function()
 	{
-		
+		$('#instructions').css('background','#66a');
+		$('#left').fadeIn(500);
+	});
+	$('#instructions').mouseleave(function()
+	{
+		$('#instructions').css('background','#99c');
+		$('#left').fadeOut(300);
+	});
+	$('#about').mouseenter(function()
+	{
+		$('#about').css('background','#66a');
+		$('#right').fadeIn(500);
+	});
+	$('#about').mouseleave(function()
+	{
+		$('#about').css('background','#99c');
+		$('#right').fadeOut(300);
+	});
+	
+	function addHelpInfo()
+	{
+		$('#left').append(instructionsContent);
+	}
+	
+	function addAboutInfo()
+	{
+		$('#right').append(aboutContent);
+	}
+	
+	function addRankingInfo()
+	{
+		$('#right2').append();
 	}
 	
 /*********************暂停*********************************/
-	function startPause()
+	function startPause(e)
 	{
+		if (e.keyCode!=13&&e.keyCode!=32&&e.keyCode!=80)
+			return;
 		if (pause) 
 		{
 			stopPause();
@@ -685,10 +733,30 @@
 		$('html').css({cursor:'default'});
 		pause=true;
 		pauseTimes--;
-		$('body').append('<div id="pause">'+_pause+'<div id="instructions">'+_instructions+'</div>'+
-		'<div id="continue" class="button">'+_continue+'</div></div>');
+		$('body').append('<div id="pause"><div class="title">'+_pause+'</div><div id="instructions">'+_instructions+'</div>'+
+		'<div id="about">ABOUT</div><div id="continue" class="button">'+_continue+'</div></div>');
 		$('#pause').css('top',height/2-100+'px');
 		$('#pause').css('left',width/2-200+'px');
+		$('#instructions').mouseenter(function()
+		{
+			$('#instructions').css('background','#66a');
+			$('#left').fadeIn(500);
+		});
+		$('#instructions').mouseleave(function()
+		{
+			$('#instructions').css('background','#99c');
+			$('#left').fadeOut(300);
+		});
+		$('#about').mouseenter(function()
+		{
+			$('#about').css('background','#66a');
+			$('#right').fadeIn(500);
+		});
+		$('#about').mouseleave(function()
+		{
+			$('#about').css('background','#99c');
+			$('#right').fadeOut(300);
+		});
 	}
 	
 	function stopPause()
@@ -696,6 +764,8 @@
 		pause=false;
 		$('html').css({cursor:'none'});
 		$('#pause').remove();
+		$('#left').fadeOut(300);
+		$('#right').fadeOut(300);
 	}
 	
 /*********************吃钻石相关***************************/
@@ -754,7 +824,7 @@
 			butterflyDensity*=t;
 			starDensity/=t;
 		},8000);
-		flash=6;
+		flash=8;
 	}
 	
 	function func_oneUp()
@@ -774,12 +844,11 @@
 	
 	function func_clear()
 	{
-		
 		balls=[];
 		bigBalls=[];
 		butterflys=[];
 		stars=[];
-		flash=6;
+		flash=8;
 	}
 	
 	function func_small(t)
@@ -792,9 +861,10 @@
 		bSize/=t;
 		butterflySize/=t;
 		starSize/=t;
+		plSize/=t;
 		for (i in butterflyShape) butterflyShape[i].r/=t;
-		Star_6 = [{r:starSize,t:rad(90)},{r:starSize/2*1.5,t:rad(60)},{r:starSize,t:rad(30)},{r:starSize/2*1.5,t:rad(0)},{r:starSize,t:rad(-30)},{r:starSize/2*1.5,t:rad(-60)},{r:starSize,t:rad(-90)},
-				{r:starSize/2*1.5,t:rad(-120)},{r:starSize,t:rad(-150)},{r:starSize/2*1.5,t:rad(-180)},{r:starSize,t:rad(-210)},{r:starSize/2*1.5,t:rad(-240)}];
+		Star_6 = [{r:starSize,t:rad(90)},{r:starSize/2*1.5,t:rad(60)},{r:starSize,t:rad(30)},{r:starSize/2*1.5,t:rad(0)},{r:starSize,t:rad(-30)},{r:starSize/2*1.5,t:rad(-60)},{r:starSize,t:rad(-90)},{r:starSize/2*1.5,t:rad(-120)},{r:starSize,t:rad(-150)},{r:starSize/2*1.5,t:rad(-180)},{r:starSize,t:rad(-210)},{r:starSize/2*1.5,t:rad(-240)}];
+		planeShape=[{r:plSize*1,t:PI+3.14},{r:plSize*0.716,t:PI+-2.98},{r:plSize*0.443,t:PI+-2.49},{r:plSize*0.443,t:PI-0.65},{r:plSize*0.716,t:PI-0.25},{r:plSize*1,t:PI+0},{r:plSize*1,t:PI+0},{r:plSize*0.716,t:PI+0.25},{r:plSize*0.443,t:PI+0.65},{r:plSize*0.443,t:PI+2.49},{r:plSize*0.716,t:PI+2.98}];
 		judge={
 			ball:cube(plSize/4+ballSize),
 			bigBall:cube(plSize/4+bigBallSize),
@@ -809,9 +879,10 @@
 			bSize*=t;
 			butterflySize*=t;
 			starSize*=t;
+			plSize*=t;
 			for (i in butterflyShape) butterflyShape[i].r*=t;
-			Star_6 = [{r:starSize,t:rad(90)},{r:starSize/2*1.5,t:rad(60)},{r:starSize,t:rad(30)},{r:starSize/2*1.5,t:rad(0)},{r:starSize,t:rad(-30)},{r:starSize/2*1.5,t:rad(-60)},{r:starSize,t:rad(-90)},
-				{r:starSize/2*1.5,t:rad(-120)},{r:starSize,t:rad(-150)},{r:starSize/2*1.5,t:rad(-180)},{r:starSize,t:rad(-210)},{r:starSize/2*1.5,t:rad(-240)}];
+			Star_6 = [{r:starSize,t:rad(90)},{r:starSize/2*1.5,t:rad(60)},{r:starSize,t:rad(30)},{r:starSize/2*1.5,t:rad(0)},{r:starSize,t:rad(-30)},{r:starSize/2*1.5,t:rad(-60)},{r:starSize,t:rad(-90)},{r:starSize/2*1.5,t:rad(-120)},{r:starSize,t:rad(-150)},{r:starSize/2*1.5,t:rad(-180)},{r:starSize,t:rad(-210)},{r:starSize/2*1.5,t:rad(-240)}];
+			planeShape=[{r:plSize*1,t:PI+3.14},{r:plSize*0.716,t:PI+-2.98},{r:plSize*0.443,t:PI+-2.49},{r:plSize*0.443,t:PI-0.65},{r:plSize*0.716,t:PI-0.25},{r:plSize*1,t:PI+0},{r:plSize*1,t:PI+0},{r:plSize*0.716,t:PI+0.25},{r:plSize*0.443,t:PI+0.65},{r:plSize*0.443,t:PI+2.49},{r:plSize*0.716,t:PI+2.98}];
 			judge={
 				ball:cube(plSize/4+ballSize),
 				bigBall:cube(plSize/4+bigBallSize),
@@ -820,7 +891,7 @@
 				diamond:cube(plSize/4+15)
 			};
 		},8000);
-		flash=6;
+		flash=8;
 	}
 	
 /*********************玩家挂了*****************************/
@@ -829,7 +900,7 @@
 		if (!wudi&&!died) 
 		{
 			life--;
-			showInfo('剩余生命: '+life);
+			showInfo(_life+life);
 			func_wudi(2500);
 		}
 		if (!life) 
@@ -843,10 +914,20 @@
 		if (died) return;
 		died=true;
 		$('html').css({cursor:'default'});
-		$('body').append('<div id="die">GAME OVER<div style="font-size:24px;padding-top:20px;">YOUR SCORE IS '+(clock+score)+'0.</div>'+
-		'<div id="retry" class="button">TRY AGAIN</div></div>');
+		$('body').append('<div id="die"><div class="title">GAME OVER</div><div id="score">YOUR SCORE IS '+(clock+score)+'0.</div>'+
+		'<div id="ranking">RANKING</div><div id="retry" class="button">TRY AGAIN</div></div>');
 		$('#die').css('top',height/2-100+'px');
 		$('#die').css('left',width/2-200+'px');
+		$('#ranking').mouseenter(function()
+		{
+			$('#ranking').css('background','#66a');
+			$('#right2').fadeIn(500);
+		});
+		$('#ranking').mouseleave(function()
+		{
+			$('#ranking').css('background','#99c');
+			$('#right2').fadeOut(300);
+		});
 	}
 	
 	function retry()
