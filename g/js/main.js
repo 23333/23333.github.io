@@ -42,7 +42,7 @@
 	}
 
 /*******************strings*************************/
-	var _gamename='hahahaha';
+	var _gamename='NEVER SEA';
 	var _instructions='INSTROCTIONS';
 	var _about='ABOUT';
 	var _startgame='START GAME';
