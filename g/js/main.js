@@ -45,6 +45,10 @@
 	}
 
 /*******************全局变量&常量声明***************/
+	var mx,my,bg,pl,plSize,cursorSize,ballSize,bigBallSize,bSize,butterflySize,starSize,d1,d2,d3,t1,t2,score,u1,u2,
+		fps,planeShape,butterflyLine,butterflyShape,diamondShape,Star_6,balls,bigBalls,butterflys,stars,diamonds,ballSpeed,
+		bigBallSpeed,butterflySpeed,starSpeed,ballDensity,bigBallDensity,butterflyDensity,diamondDensity,ballStyle,
+		clock,died,level,judge,startBgColor=ranInt(0,359),bgColorTimer=0,life,wudi,wudiTimer,smallTimer,slowTimer,info;
 	function prepossessing()
 	{
 		mx=width/7,my=height/2;//鼠标位置
@@ -95,8 +99,6 @@
 			star:cube(plSize/4+starSize),
 			diamond:cube(plSize/4+15)
 		};
-		startBgColor=ranInt(0,359);
-		bgColorTimer=0;
 		life=3;
 		wudi=false;
 		wudiTimer=null;
