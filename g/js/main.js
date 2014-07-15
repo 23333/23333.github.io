@@ -119,8 +119,8 @@
 		window.clearTimeout(smallTimer);
 		window.clearTimeout(slowTimer);
 		flash=0;
-		instructionsContent='<b style="font-size:22px;"><p>游戏说明</p></b><p>移动鼠标控制小鱼 躲避飞来的障碍</p><p>吃钻石道具可以随机获得特殊能力</p><p>共有4种障碍物和6种特殊能力(^^)/</p>';
-		aboutContent='<b style="font-size:22px;"><p>关于</p></b><p>作者①: 周伯威 zhou_bw@yeah.net</p><p>作者②: 林杨湄 linym012@163.com</p><p>Copyright © 2014. All rights reserved.</p>';
+		instructionsContent='<b style="font-size:22px;"><p>游戏说明</p></b><p>移动鼠标控制小鱼 躲避飞来的障碍</p><p>吃钻石道具可以随机获得特殊能力</p><p>按空格或回车键可以暂停(^^)/</p>';
+		aboutContent='<b style="font-size:22px;"><p>关于</p></b><p>作者①: 周伯威 zhou_bw@yeah.net</p><p>作者②: 林杨湄 linym012@163.com</p><p>Thanks for playing(*´▽｀*)</p>';
 		info='';//调试信息
 		pause=false;
 		pauseTimes=30;//最大暂停次数
