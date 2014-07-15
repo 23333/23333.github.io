@@ -55,6 +55,7 @@
 	var bSize=10;//蝴蝶判定点大小
 	var butterflySize=bSize-2;
 	var starSize=10;
+	var d1 = 25;var d2 = d1/25*30;var d3 = d1/25*27;var t1 = 20,t2 = 40;//diamond大小的几个参数
 	var score=0;
 	var u1=6,u2=80;//控制飞机运动的两个阻尼参数, u1:越大表示加速度受速度的负影响越大 u2:越大表示速度越慢
 	var fps=60;//帧率
@@ -309,8 +310,6 @@
 	
 	function drawOneDiamond(dia_x,dia_y)//画钻石
 	{
-		var d1 = 25,d2 = d1/25*30,d3 = d1/25*27;
-		var t1 = 20,t2 = 40;
 		cv.save();
 		cv.fillStyle='white';
 		//var diamondStyle=cv.createRadialGradient(dia_x-5,dia_y-19,0,dia_x-5,dia_y-19,10);
