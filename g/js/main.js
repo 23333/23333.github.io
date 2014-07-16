@@ -51,31 +51,32 @@
 	
 /*******************strings*************************/
 	var _gamename='ENDLESS SEA';
-	var _instructions='INSTROCTIONS';
+	var _instructions='TUTORIAL';
 	var _about='ABOUT';
 	var _startgame='START GAME';
 	var _pause='PAUSE';
 	var _continue='CONTINUE';
 	var _gameover='DREAM AWAKE';
-	var _scoreis='YOUR SCORE IS: ';
+	var _scoreis='YOUR SCORE: ';
 	var _ranking='RANKING';
 	var _tryagain='TRY AGAIN';
 	var _top_score='Score: ';
 	var _top_life='Life: ';
 	var _top_level='Level: ';
 	var _life='Life: ';
-	var _wudi='Super';
+	var _wudi='Superfish';
 	var _jiansu='Speed Down';
 	var _qingping='Big Bomb';
 	var _1up='1 UP';
-	var _bianxiao='Small World';
+	var _bianxiao='Mini World';
 	
 /*******************全局变量&常量声明***************/
 	var mx,my,bg,pl,plSize,cursorSize,ballSize,bigBallSize,bSize,butterflySize,starSize,d1,d2,d3,t1,t2,score,u1,u2,
 		fps,planeShape,butterflyLine,butterflyShape,diamondShape,Star_6,balls,bigBalls,butterflys,stars,diamonds,waves,ballSpeed,
 		bigBallSpeed,butterflySpeed,starSpeed,waveSpeed,waveRSpeed,waveWidth,waveMaxR,waveR,ballDensity,bigBallDensity,butterflyDensity,diamondDensity,ballStyle,instructionsContent,aboutContent,
 		clock,died,level,judge,startBgColor=ranInt(0,359),bgColorTimer=0,life,wudi,wudiTimer,smallTimer,slowTimer,info,timer,flash,pause,pauseTimes,playNum,scoreArr;
-		
+	var playNum = 0;//用户玩游戏的总次数
+	var scoreArr = new Array();//储存玩家得分的数组
 	function prepossessing()
 	{
 		mx=width/7,my=height/2;//鼠标位置
@@ -142,8 +143,8 @@
 		window.clearTimeout(smallTimer);
 		window.clearTimeout(slowTimer);
 		flash=0;
-		instructionsContent='<b style="font-size:22px;"><p>游戏说明</p></b><p>移动鼠标控制小鱼 躲避飞来的障碍</p><p>吃钻石道具可以随机获得特殊能力</p><p>按空格或回车键可以暂停(^^)/</p>';
-		aboutContent='<b style="font-size:22px;"><p>关于</p></b><p>作者①: 周伯威 zhou_bw@yeah.net</p><p>作者②: 林杨湄 linym012@163.com</p><p>Thanks for playing(*´▽｀*)</p>';
+		instructionsContent='<b style="font-size:22px;"><p>INSTRUCTION</p></b><p>Move mouse to control the fish</p><p>Diamonds can help you gain special abilities</p><p>Press Space or Enter for pause(^^)</p>';
+		aboutContent='<b style="font-size:22px;"><p>ABOUT US</p></b><p>周伯威 zhou_bw@yeah.net</p><p>林杨湄 linym012@163.com</p><p>Thanks for playing(*´▽｀*)</p>';
 		info='';//调试信息
 		pause=false;
 		pauseTimes=30;//最大暂停次数
@@ -154,8 +155,8 @@
 /*******************开始游戏************************/
 	prepossessing();
 	drawBG();
-	$('body').append('<div id="startgame"><div class="title">'+_gamename+
-		'</div><div id="instructions">'+_instructions+'</div>'+
+	$('body').append('<div class="title">'+_gamename+'</div><div id="startgame">'
+		+'<div id="instructions">'+_instructions+'</div>'+
 		'<div id="about">'+_about+'</div>'+
 		'<div id="startbutton" class="button">'+_startgame+'</div></div>');
 	$('body').append('<div class="moreinfo" id="left"></div>');
@@ -172,6 +173,8 @@
 	$('#right2').css('left',width/2+220+'px');
 	$('#right2').css('width',width/2-240+'px');
 	$('#right2').css('top',height/2-100+'px');
+	$('.title').css('top',height/2-200+'px');
+	$('.title').css('left',width/2-$('.title').width()/2+'px');
 	addHelpInfo();
 	addAboutInfo();
 	addRankingInfo();
@@ -695,8 +698,8 @@
 			retry();
 		else if (e.target.id=='startbutton')
 		{
-			'#music'
 			$('#startgame').remove();
+			$('.title').remove();
 			$('html').css({cursor:'none'});
 			clockStart();
 			$('#music')[0].play();
@@ -712,22 +715,22 @@
 /*********************帮助&关于信息************************/
 	$('#instructions').mouseenter(function()
 	{
-		$('#instructions').css('background','#66a');
+		$('#instructions').css('background','#1954c0');
 		$('#left').fadeIn(500);
 	});
 	$('#instructions').mouseleave(function()
 	{
-		$('#instructions').css('background','#99c');
+		$('#instructions').css('background','#3369cd');
 		$('#left').fadeOut(300);
 	});
 	$('#about').mouseenter(function()
 	{
-		$('#about').css('background','#66a');
+		$('#about').css('background','#1954c0');
 		$('#right').fadeIn(500);
 	});
 	$('#about').mouseleave(function()
 	{
-		$('#about').css('background','#99c');
+		$('#about').css('background','#3369cd');
 		$('#right').fadeOut(300);
 	});
 	
@@ -743,8 +746,9 @@
 	
 	function addRankingInfo(t)
 	{
-		localStorage.setItem(playNum, t);//记录本次游戏得分
-		for(var i = 1; i<=playNum; i++)//读取所有分数
+		if(localStorage.getItem(localStorage.count)==undefined)
+			localStorage.setItem(localStorage.count, t);//记录本次游戏得分
+		for(var i = 1; i<=localStorage.count; i++)//读取所有分数
 		scoreArr[i-1] = parseInt(localStorage.getItem(i));
 		var temp;
 		for(var i = 0; i<scoreArr.length; i++)//对所有分数冒泡排序，从高到低
@@ -767,9 +771,14 @@
 		{
 			if(scoreArr[i] == undefined)
 				scoreArr[i] = 0;
+			/*var x = $('<div/>');
+			x[0].innerText =i+1+". "+scoreArr[i];
+			x.appendTo('right2');
+			*/
 		}
 		var rankContent = '<div>1. '+scoreArr[0]+'</div><div>2. '+scoreArr[1]+'</div><div>3. '+scoreArr[2]+'</div><div>4. '+scoreArr[3]+'</div><div>5. '+scoreArr[4]+'</div>';
 		$('#right2')[0].innerHTML = rankContent;
+		
 	}
 	
 /*********************暂停*********************************/
@@ -789,40 +798,43 @@
 		}
 		if ($('#startgame').length)
 		{
-			'#music'
 			$('#startgame').remove();
 			$('html').css({cursor:'none'});
 			clockStart();
+			$('#left').fadeOut(300);
+			$('#right').fadeOut(300);
+			$('.title').remove();
 			return;
 		}
 		if (pauseTimes<0) 
 			return;
-		'#music'
 		$('html').css({cursor:'default'});
 		pause=true;
 		pauseTimes--;
-		$('body').append('<div id="pause"><div class="title">'+_pause+'</div><div id="instructions">'+_instructions+'</div>'+
+		$('body').append('<div class="title">'+_pause+'</div><div id="pause"><div id="instructions">'+_instructions+'</div>'+
 		'<div id="about">ABOUT</div><div id="continue" class="button">'+_continue+'</div></div>');
 		$('#pause').css('top',height/2-100+'px');
 		$('#pause').css('left',width/2-200+'px');
+		$('.title').css('top',height/2-200+'px');
+		$('.title').css('left',width/2-$('.title').width()/2+'px');
 		$('#instructions').mouseenter(function()
 		{
-			$('#instructions').css('background','#66a');
+			$('#instructions').css('background','#1954c0');
 			$('#left').fadeIn(500);
 		});
 		$('#instructions').mouseleave(function()
 		{
-			$('#instructions').css('background','#99c');
+			$('#instructions').css('background','#3369cd');
 			$('#left').fadeOut(300);
 		});
 		$('#about').mouseenter(function()
 		{
-			$('#about').css('background','#66a');
+			$('#about').css('background','#1954c0');
 			$('#right').fadeIn(500);
 		});
 		$('#about').mouseleave(function()
 		{
-			$('#about').css('background','#99c');
+			$('#about').css('background','#3369cd');
 			$('#right').fadeOut(300);
 		});
 		$('#music')[0].pause();
@@ -834,6 +846,7 @@
 		'#music'
 		$('html').css({cursor:'none'});
 		$('#pause').remove();
+		$('.title').remove();
 		$('#left').fadeOut(300);
 		$('#right').fadeOut(300);
 		$('#music')[0].play();
@@ -987,32 +1000,41 @@
 	{
 		if (died) return;
 		died=true;
+		playNum++;
+		if(localStorage.count)
+			localStorage.count++;
+		else
+			localStorage.count = 1;
 		$('html').css({cursor:'default'});
-		$('body').append('<div id="die"><div class="title">'+_gameover+'</div><div id="score">'+_scoreis+(clock+score)+'0</div>'+
+		var t=clock+score;
+		$('body').append('<div class="title">'+_gameover+'</div><div id="die"><div id="score">'+_scoreis+(t)+'0.</div>'+
 		'<div id="ranking">'+_ranking+'</div><div id="retry" class="button">'+_tryagain+'</div></div>');
+		addRankingInfo(t+'0');
 		$('#die').css('top',height/2-100+'px');
 		$('#die').css('left',width/2-200+'px');
+		$('.title').css('top',height/2-200+'px');
+		$('.title').css('left',width/2-$('.title').width()/2+'px');
 		$('#ranking').mouseenter(function()
 		{
-			$('#ranking').css('background','#66a');
+			$('#ranking').css('background','#1954c0');
 			$('#right2').fadeIn(500);
 		});
 		$('#ranking').mouseleave(function()
 		{
-			$('#ranking').css('background','#99c');
+			$('#ranking').css('background','#3369cd');
 			$('#right2').fadeOut(300);
 		});
-		$('#diesound')[0].play();
-		addRankingInfo(t+'0');
 	}
 	
 	function retry()
 	{
 		$('#die').remove();
+		$('.title').remove();
 		$('html').css({cursor:'none'});
 		$('.info').remove();
 		prepossessing();
 		$('#music')[0].pause();
 		$('#music')[0].currentTime=0;
 		$('#music')[0].play();
+		$("#right2").fadeOut(300);
 	}
