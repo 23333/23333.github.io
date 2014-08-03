@@ -68,7 +68,7 @@
 	var _jiansu='Speed Down';
 	var _qingping='Big Bomb';
 	var _1up='1 UP';
-	var _bianxiao='Mini World';
+	var _bianxiao='Small World';
 	
 /*******************全局变量&常量声明***************/
 	var mx,my,bg,pl,plSize,cursorSize,ballSize,bigBallSize,bSize,butterflySize,starSize,d1,d2,d3,t1,t2,score,u1,u2,
@@ -173,6 +173,7 @@
 	$('#right2').css('left',width/2+220+'px');
 	$('#right2').css('width',width/2-240+'px');
 	$('#right2').css('top',height/2-100+'px');
+	$('#right2').css('padding-top',0+'px');
 	$('.title').css('top',height/2-200+'px');
 	$('.title').css('left',width/2-$('.title').width()/2+'px');
 	addHelpInfo();
@@ -776,7 +777,7 @@
 			x.appendTo('right2');
 			*/
 		}
-		var rankContent = '<div>1. '+scoreArr[0]+'</div><div>2. '+scoreArr[1]+'</div><div>3. '+scoreArr[2]+'</div><div>4. '+scoreArr[3]+'</div><div>5. '+scoreArr[4]+'</div>';
+		var rankContent = '<div class="right2" style = "margin-top:12px">1. '+scoreArr[0]+'</div><div class="right2">2. '+scoreArr[1]+'</div><div class="right2">3. '+scoreArr[2]+'</div><div class="right2">4. '+scoreArr[3]+'</div><div class="right2">5. '+scoreArr[4]+'</div>';
 		$('#right2')[0].innerHTML = rankContent;
 		
 	}
@@ -843,7 +844,6 @@
 	function stopPause()
 	{
 		pause=false;
-		'#music'
 		$('html').css({cursor:'none'});
 		$('#pause').remove();
 		$('.title').remove();
@@ -1007,13 +1007,15 @@
 			localStorage.count = 1;
 		$('html').css({cursor:'default'});
 		var t=clock+score;
-		$('body').append('<div class="title">'+_gameover+'</div><div id="die"><div id="score">'+_scoreis+(t)+'0.</div>'+
+		$('body').append('<div class="title">'+_gameover+'</div><div id="die"><div id="score">'+_scoreis+(t)+'0</div>'+
 		'<div id="ranking">'+_ranking+'</div><div id="retry" class="button">'+_tryagain+'</div></div>');
 		addRankingInfo(t+'0');
 		$('#die').css('top',height/2-100+'px');
 		$('#die').css('left',width/2-200+'px');
 		$('.title').css('top',height/2-200+'px');
 		$('.title').css('left',width/2-$('.title').width()/2+'px');
+		$('#right2').css('width',150+'px');
+		$('#right2').css('vertical-align','center');
 		$('#ranking').mouseenter(function()
 		{
 			$('#ranking').css('background','#1954c0');
@@ -1024,6 +1026,7 @@
 			$('#ranking').css('background','#3369cd');
 			$('#right2').fadeOut(300);
 		});
+		$('#diesound')[0].play();
 	}
 	
 	function retry()
