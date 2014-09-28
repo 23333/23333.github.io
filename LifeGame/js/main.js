@@ -205,7 +205,7 @@ function writeInstructions() {
 	cv.fillText('游戏目前状态：', 0.6*width, 0.7*height);
 
 	cv.font = "15px Microsoft Yahei";
-	cv.fillText('鼠标点击/拖动: 改变细胞状态（白色为活细胞，透明为死细胞）', 0.6*width, 0.32*height);
+	cv.fillText('鼠标点击/拖动: 改变细胞生死状态', 0.6*width, 0.32*height);
 	cv.fillText('空格: 开始/暂停', 0.6*width, 0.37*height);
 	cv.fillText('↑/↓: 增加/减少格子数目', 0.6*width, 0.42*height);
 	cv.fillText('←/→: 减慢/加快变化速度', 0.6*width, 0.47*height);
@@ -213,7 +213,10 @@ function writeInstructions() {
 	cv.fillText('Enter: 随机生成', 0.6*width, 0.57*height);
 	cv.fillText('F5: 刷新', 0.6*width, 0.62*height);
 	cv.fillText('格子数：'+n+'*'+n+'='+n*n+'个', 0.6*width, 0.75*height);
-	cv.fillText('变化速度：'+60/speed, 0.6*width, 0.8*height);
+	var count=cellCount();
+	cv.fillText('存活细胞数：'+count, 0.6*width,0.8*height);
+	cv.fillText('细胞存活比：'+floor(count/n/n*1000)/10+' %',0.6*width,0.85*height);
+	cv.fillText('变化速度：'+60/speed, 0.6*width, 0.9*height);
 
 }
 
@@ -388,4 +391,17 @@ function cellChange(x, y) {//输入xy坐标，返回下一时刻该位置细胞�
 	//sum值代表该细胞周围的活细胞数
 	sum = rects[xl][yl] + rects[xl][y] + rects[xl][yr] + rects[x][yl] + rects[x][yr] + rects[xr][yl] + rects[xr][y] + rects[xr][yr];	
 	return sum==2?rects[x][y]:(sum==3?1:0);
+}
+
+function cellCount()
+{
+	var sum=0;
+	for (var i = 0; i < n; i++)
+	{
+		for (var j = 0; j < n; j++)
+		{
+			sum+=rects[i][j];
+		}
+	}
+	return sum;
 }
