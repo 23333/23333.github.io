@@ -194,11 +194,35 @@ function drawRects()//画全局变量rects里面的方块
 	}
 }
 
+function writeInstructions() {
+	cv.fillStyle = "rgba(255, 255, 255, 0.8)";
+
+	cv.font = "bold 50px Courier New";
+	cv.fillText('LIFE GAME', 0.64*width, 0.18*height);
+
+	cv.font = "bold 20px Microsoft Yahei";
+	cv.fillText('游戏操作说明：', 0.6*width, 0.27*height);
+	cv.fillText('游戏目前状态：', 0.6*width, 0.7*height);
+
+	cv.font = "15px Microsoft Yahei";
+	cv.fillText('鼠标点击/拖动: 改变细胞状态（白色为活细胞，透明为死细胞）', 0.6*width, 0.32*height);
+	cv.fillText('空格: 开始/暂停', 0.6*width, 0.37*height);
+	cv.fillText('↑/↓: 增加/减少格子数目', 0.6*width, 0.42*height);
+	cv.fillText('←/→: 减慢/加快变化速度', 0.6*width, 0.47*height);
+	cv.fillText('R: 重置', 0.6*width, 0.52*height);
+	cv.fillText('Enter: 随机生成', 0.6*width, 0.57*height);
+	cv.fillText('F5: 刷新', 0.6*width, 0.62*height);
+	cv.fillText('格子数：'+n+'*'+n+'='+n*n+'个', 0.6*width, 0.75*height);
+	cv.fillText('变化速度：'+60/speed, 0.6*width, 0.8*height);
+
+}
+
 /*********************绘图时钟***********************/
 function clockStart(){
 	timer=setInterval(function() {
 		drawBG();
 		drawRects();
+		writeInstructions();
 		if (clock%speed==0&&!pausing) 
 			lifeChange();
 		if (!pausing) clock++;
