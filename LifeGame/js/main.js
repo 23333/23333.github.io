@@ -215,8 +215,8 @@ function writeInstructions() {
 	cv.fillText('格子数：'+n+'*'+n+'='+n*n+'个', 0.6*width, 0.75*height);
 	var count=cellCount();
 	cv.fillText('存活细胞数：'+count, 0.6*width,0.8*height);
-	cv.fillText('细胞存活比：'+floor(count/n/n*1000)/10+' %',0.6*width,0.85*height);
-	cv.fillText('变化速度：'+60/speed, 0.6*width, 0.9*height);
+	cv.fillText('细胞存活比：'+floor(count/n/n*10000)/100+' %',0.6*width,0.85*height);
+	cv.fillText('变化速度：'+(pausing?'PAUSE':floor(6000/speed)/100), 0.6*width, 0.9*height);
 
 }
 
